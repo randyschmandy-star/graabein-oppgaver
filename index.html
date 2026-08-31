@@ -216,6 +216,26 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; margin: 0; }
 .deadline.is-soon { color: var(--soon); }
 .deadline.is-overdue { color: var(--danger); font-weight: 600; }
 
+.task-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  position: relative;
+  flex-shrink: 0;
+}
+.task-edit {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.task-edit:hover { color: var(--text); border-color: var(--accent); }
+
 .task-delete {
   background: none;
   border: none;
@@ -318,6 +338,7 @@ let state = {
   confirmRemoveId: null,
   confirmDeleteTaskId: null,
   showForm: false,
+  editingTaskId: null,
   form: { title: "", description: "", deadline: "", assignee: "" },
   saveError: "",
 };
@@ -459,10 +480,19 @@ function submitTask() {
   const description = document.getElementById("task-desc").value.trim();
   const deadline = document.getElementById("task-deadline").value;
   const assignee = document.getElementById("task-assignee").value;
-  const task = { id: uid(), title, description, deadline, assignee, done: false, createdAt: new Date().toISOString() };
-  const next = [task, ...state.tasks];
+
+  let next;
+  if (state.editingTaskId) {
+    next = state.tasks.map((t) =>
+      t.id === state.editingTaskId ? { ...t, title, description, deadline, assignee } : t
+    );
+  } else {
+    const task = { id: uid(), title, description, deadline, assignee, done: false, createdAt: new Date().toISOString() };
+    next = [task, ...state.tasks];
+  }
   state.tasks = next;
   state.showForm = false;
+  state.editingTaskId = null;
   render();
   persist(state.employees, next);
 }
@@ -566,14 +596,17 @@ function render() {
               ${t.deadline ? `<span class="deadline ${overdue ? "is-overdue" : dueSoon ? "is-soon" : ""}">${overdue ? "Forfalt " : "Frist "}${fmtDate(t.deadline)}</span>` : ""}
             </div>
           </div>
-          ${
-            state.confirmDeleteTaskId === t.id
-              ? `<div class="confirm-pop for-task">
-                   <button data-action="confirm-delete-task" data-id="${t.id}">Slett</button>
-                   <button class="ghost" data-action="cancel-delete-task">Avbryt</button>
-                 </div>`
-              : `<button class="task-delete" data-action="ask-delete-task" data-id="${t.id}" aria-label="Slett oppgave">×</button>`
-          }
+          <div class="task-actions">
+            <button class="task-edit" data-action="edit-task" data-id="${t.id}" aria-label="Rediger oppgave">Rediger</button>
+            ${
+              state.confirmDeleteTaskId === t.id
+                ? `<div class="confirm-pop for-task">
+                     <button data-action="confirm-delete-task" data-id="${t.id}">Slett</button>
+                     <button class="ghost" data-action="cancel-delete-task">Avbryt</button>
+                   </div>`
+                : `<button class="task-delete" data-action="ask-delete-task" data-id="${t.id}" aria-label="Slett oppgave">×</button>`
+            }
+          </div>
         </li>
       `;
     }).join("") + `</ul>`;
@@ -597,30 +630,36 @@ function render() {
 
     ${
       state.showForm
-        ? `<div class="modal-backdrop">
+        ? (() => {
+            const editing = state.editingTaskId ? state.tasks.find((t) => t.id === state.editingTaskId) : null;
+            return `<div class="modal-backdrop">
              <div class="modal">
-               <h3>Ny oppgave</h3>
+               <h3>${editing ? "Rediger oppgave" : "Ny oppgave"}</h3>
                <label>Tittel
-                 <input id="task-title" placeholder="Hva skal gjøres?" autofocus />
+                 <input id="task-title" placeholder="Hva skal gjøres?" autofocus value="${editing ? esc(editing.title) : ""}" />
                </label>
                <label>Beskrivelse
-                 <textarea id="task-desc" placeholder="Detaljer (valgfritt)" rows="3"></textarea>
+                 <textarea id="task-desc" placeholder="Detaljer (valgfritt)" rows="3">${editing ? esc(editing.description || "") : ""}</textarea>
                </label>
                <label>Frist
-                 <input id="task-deadline" type="date" />
+                 <input id="task-deadline" type="date" value="${editing ? esc(editing.deadline || "") : ""}" />
                </label>
                <label>Tildel til
                  <select id="task-assignee">
                    <option value="">Ikke tildelt</option>
-                   ${state.employees.map((e) => `<option value="${e.id}" ${state.selected === e.id ? "selected" : ""}>${esc(e.name)}</option>`).join("")}
+                   ${state.employees.map((e) => {
+                     const currentAssignee = editing ? editing.assignee : state.selected;
+                     return `<option value="${e.id}" ${currentAssignee === e.id ? "selected" : ""}>${esc(e.name)}</option>`;
+                   }).join("")}
                  </select>
                </label>
                <div class="modal-actions">
                  <button class="ghost" data-action="close-form">Avbryt</button>
-                 <button class="btn-primary" data-action="submit-task">Legg ut oppgave</button>
+                 <button class="btn-primary" data-action="submit-task">${editing ? "Lagre endringer" : "Legg ut oppgave"}</button>
                </div>
              </div>
-           </div>`
+           </div>`;
+          })()
         : ""
     }
 
@@ -659,8 +698,9 @@ document.addEventListener("click", (e) => {
   else if (action === "ask-remove") setState({ confirmRemoveId: id });
   else if (action === "cancel-remove") setState({ confirmRemoveId: null });
   else if (action === "confirm-remove") removeEmployee(id);
-  else if (action === "open-form") setState({ showForm: true });
-  else if (action === "close-form") setState({ showForm: false });
+  else if (action === "open-form") setState({ showForm: true, editingTaskId: null });
+  else if (action === "close-form") setState({ showForm: false, editingTaskId: null });
+  else if (action === "edit-task") setState({ showForm: true, editingTaskId: id });
   else if (action === "submit-task") submitTask();
   else if (action === "toggle-done") toggleDone(id);
   else if (action === "ask-delete-task") setState({ confirmDeleteTaskId: id });
