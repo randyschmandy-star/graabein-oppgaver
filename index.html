@@ -405,6 +405,8 @@ async function load() {
     state.saveError = "Kunne ikke koble til Firebase: " + (e && e.message ? e.message : String(e));
   }
   state.loaded = true;
+  // Ikke tegn om midt i at noen skriver i et åpent skjema - det ville nullstilt feltet
+  if (state.addingEmployee || state.showForm) return;
   render();
 }
 
