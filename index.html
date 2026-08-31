@@ -597,7 +597,7 @@ function render() {
 
     ${
       state.showForm
-        ? `<div class="modal-backdrop" data-action="close-form">
+        ? `<div class="modal-backdrop">
              <div class="modal">
                <h3>Ny oppgave</h3>
                <label>Tittel
@@ -644,6 +644,10 @@ function render() {
 
 // ---- Klikk-håndtering (event delegation) ----
 document.addEventListener("click", (e) => {
+  if (e.target.classList && e.target.classList.contains("modal-backdrop")) {
+    setState({ showForm: false });
+    return;
+  }
   const el = e.target.closest("[data-action]");
   if (!el) return;
   const action = el.dataset.action;
