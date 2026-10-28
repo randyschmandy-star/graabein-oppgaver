@@ -4,6 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Oppgaver – Graabein Skjegg</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="icon" type="image/png" href="icon-192.png" />
+<meta name="theme-color" content="#1B1815" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Graabein" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
@@ -81,6 +89,23 @@ button, input, select, textarea { font-family: inherit; }
 }
 .brand h1 svg { width: 26px; height: 26px; }
 
+.appbar-right { display: flex; align-items: center; gap: 10px; }
+.install-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  border: 1px dashed var(--line);
+  background: none;
+  color: var(--text-muted);
+  font: 600 13.5px 'IBM Plex Sans', -apple-system, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.install-btn svg { width: 16px; height: 16px; flex: none; }
+.install-btn:hover { color: var(--text); border-style: solid; border-color: var(--text-muted); }
+
 .views { display: flex; gap: 6px; }
 .view-tab {
   --tab-c: var(--accent);
@@ -155,6 +180,7 @@ button, input, select, textarea { font-family: inherit; }
     background: var(--tab-c);
   }
   .view-tab .vbadge { position: absolute; top: 5px; left: calc(50% + 8px); }
+  .appbar-right { align-self: center; }
   .page { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 }
 
@@ -510,6 +536,30 @@ button, input, select, textarea { font-family: inherit; }
 .d-ok { background: var(--ok); } .d-warn { background: var(--warn); } .d-crit { background: var(--crit); }
 .d-none { background: transparent; border: 1.5px dashed var(--none-ink); }
 
+.l-push {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+.l-push > svg { width: 20px; height: 20px; flex: none; color: var(--lager); }
+.l-push p { flex: 1; min-width: 0; margin: 0; line-height: 1.45; }
+.l-push p b { color: var(--text); font-weight: 600; }
+.l-push-actions { display: flex; gap: 8px; flex: none; }
+.l-push.is-on { padding-block: 7px; }
+.l-push.is-on > svg { color: var(--ok); }
+@media (max-width: 520px) {
+  .l-push { flex-wrap: wrap; }
+  .l-push p { flex-basis: calc(100% - 40px); }
+  .l-push-actions { margin-left: 32px; }
+}
+
 .l-alerts {
   background: var(--crit-tint);
   border: 1px solid color-mix(in srgb, var(--crit) 45%, var(--line));
@@ -721,6 +771,17 @@ fieldset.limits legend { padding: 0 6px; color: var(--text); font-weight: 600; f
 .order-row { display: flex; gap: 8px; }
 @media (max-width: 420px) { .row2 { grid-template-columns: 1fr; } .l-form { padding-inline: 16px; } }
 
+/* Installer-veiledning */
+.inst-head { display: flex; align-items: center; gap: 14px; }
+.inst-head img { width: 56px; height: 56px; border-radius: 13px; flex: none; }
+.inst-sub { margin: 3px 0 0; font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+.inst-steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 10px; }
+.inst-steps li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; font-size: 14.5px; line-height: 1.45; }
+.inst-steps li::before { content: counter(s); display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--line); font-weight: 700; font-size: 13px; color: var(--text); }
+.inst-steps b { color: var(--text); font-weight: 600; }
+.inst-steps svg { width: 16px; height: 16px; vertical-align: -3px; color: var(--lager); }
+.inst-note { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
 /* Lagervarsler */
 .toasts {
   position: fixed;
@@ -768,6 +829,11 @@ fieldset.limits legend { padding: 0 6px; color: var(--text); font-weight: 600; f
       <p class="sub">Graabein Skjegg</p>
       <h1 id="viewTitle"></h1>
     </div>
+    <div class="appbar-right">
+    <button type="button" class="install-btn" id="installBtn" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>
+      <span>Installer app</span>
+    </button>
     <nav class="views" role="tablist" aria-label="Velg del av appen">
       <a href="#oppgaver" class="view-tab" data-view="oppgaver" role="tab" aria-selected="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1.2 1.2L7 5M3.5 12l1.2 1.2L7 11M3.5 18l1.2 1.2L7 17"/></svg>
@@ -780,6 +846,7 @@ fieldset.limits legend { padding: 0 6px; color: var(--text); font-weight: 600; f
         <span class="vbadge is-alert" id="badgeLager" hidden></span>
       </a>
     </nav>
+    </div>
   </div>
 </header>
 
@@ -807,6 +874,12 @@ fieldset.limits legend { padding: 0 6px; color: var(--text); font-weight: 600; f
       <span class="l-stat"><i class="dot d-warn"></i><b id="l-stWarn">0</b> gule</span>
       <span class="l-stat"><i class="dot d-crit"></i><b id="l-stCrit">0</b> røde</span>
       <span class="l-stat" id="l-stNoneWrap"><i class="dot d-none"></i><b id="l-stNone">0</b> ikke telt</span>
+    </div>
+
+    <div id="l-push" class="l-push" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M10.5 18.5h3"/></svg>
+      <p id="l-pushText"></p>
+      <div class="l-push-actions" id="l-pushActions"></div>
     </div>
 
     <section id="l-alerts" class="l-alerts" aria-labelledby="l-alertsH" hidden>
@@ -927,6 +1000,24 @@ fieldset.limits legend { padding: 0 6px; color: var(--text); font-weight: 600; f
       <span class="spacer"></span>
       <button type="button" class="btn-line" data-close>Avbryt</button>
       <button type="submit" class="btn-lager" id="l-catSave">Legg til</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="installDlg" class="l-dlg" aria-labelledby="installDlgH">
+  <form class="l-form" method="dialog">
+    <div class="inst-head">
+      <img src="icon-192.png" alt="" width="56" height="56">
+      <div>
+        <h3 id="installDlgH">Installer Graabein</h3>
+        <p class="inst-sub" id="installSub"></p>
+      </div>
+    </div>
+    <ol class="inst-steps" id="installSteps"></ol>
+    <p class="inst-note" id="installNote"></p>
+    <div class="l-actions">
+      <span class="spacer"></span>
+      <button type="submit" class="btn-lager">Skjønner</button>
     </div>
   </form>
 </dialog>
@@ -2164,7 +2255,204 @@ window.Lager = (function () {
   $('#l-retry').addEventListener('click', function () { L.err = null; L.loaded = false; render(); poll(); });
 
   render();
-  return { poll: poll, render: render, alertCount: alertCount };
+  return { poll: poll, render: render, alertCount: alertCount, toast: toast };
+})();
+</script>
+
+<script>
+// =====================================================================
+// PUSH-VARSLER FOR LAGERET
+// Hver enhet slår på varsler selv. Enheten registreres i dokumentet
+// graabein-oppgaver/push, og skyfunksjonen "lagervarsel" sender varsel
+// dit når en vare når varselgrensen, også når appen er lukket.
+// =====================================================================
+window.Push = (function () {
+  'use strict';
+  var FB_CONFIG = {
+    apiKey: "AIzaSyD-ImzoaNA3vWm953fRjX5X1kVEyx20K5E",
+    authDomain: "graabein-oppgaver.firebaseapp.com",
+    projectId: "graabein-oppgaver",
+    storageBucket: "graabein-oppgaver.firebasestorage.app",
+    messagingSenderId: "864551962699",
+    appId: "1:864551962699:web:388adca51013fa857125ce",
+  };
+  // Offentlig nøkkel fra Firebase: Prosjektinnstillinger > Cloud Messaging > Web Push certificates
+  var VAPID_KEY = "BKne6I3KKc6IWRj53YTTbGhYvBYEJrr2xdBAmHZqTW-sE9v2CCIN4L6Foo_spjXbKLsmOv604edskbIX2fBTHuw";
+  var SDK = "https://www.gstatic.com/firebasejs/10.14.1/";
+  var PUSH_NAME = "projects/" + FIREBASE_PROJECT_ID + "/databases/(default)/documents/" + DOC_COLLECTION + "/push";
+  var COMMIT_URL = "https://firestore.googleapis.com/v1/projects/" + FIREBASE_PROJECT_ID + "/databases/(default)/documents:commit";
+  var DAY = 864e5;
+
+  var box = document.getElementById("l-push");
+  var textEl = document.getElementById("l-pushText");
+  var actionsEl = document.getElementById("l-pushActions");
+  var busy = false, lastError = "";
+
+  function lsGet(k, d) { try { var v = localStorage.getItem("push:" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
+  function lsSet(k, v) { try { if (v == null) localStorage.removeItem("push:" + k); else localStorage.setItem("push:" + k, JSON.stringify(v)); } catch (e) {} }
+
+  function configured() { return VAPID_KEY.indexOf("SETT_INN") !== 0; }
+  function supported() { return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window; }
+  function isIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); }
+  function standalone() { return (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true; }
+  function deviceLabel() {
+    var ua = navigator.userAgent;
+    if (/iPhone/.test(ua)) return "iPhone";
+    if (/iPad/.test(ua) || isIOS()) return "iPad";
+    if (/Android/.test(ua)) return "Android";
+    if (/Mac/.test(ua)) return "Mac";
+    if (/Windows/.test(ua)) return "Windows";
+    return "Nettleser";
+  }
+
+  var sdk = null;
+  function loadScript(src) {
+    return new Promise(function (res, rej) {
+      var s = document.createElement("script");
+      s.src = src; s.onload = res;
+      s.onerror = function () { rej(new Error("Fikk ikke lastet varselsystemet fra Firebase.")); };
+      document.head.appendChild(s);
+    });
+  }
+  function messaging() {
+    if (!sdk) {
+      sdk = loadScript(SDK + "firebase-app-compat.js")
+        .then(function () { return loadScript(SDK + "firebase-messaging-compat.js"); })
+        .then(function () {
+          if (!firebase.apps.length) firebase.initializeApp(FB_CONFIG);
+          var m = firebase.messaging();
+          // Kommer et varsel mens appen er åpen, henter vi lageret med en gang
+          m.onMessage(function () { if (window.Lager) window.Lager.poll(); });
+          return m;
+        });
+      sdk.catch(function () { sdk = null; });
+    }
+    return sdk;
+  }
+  async function getToken() {
+    var reg = await navigator.serviceWorker.register("firebase-messaging-sw.js");
+    await navigator.serviceWorker.ready;
+    var m = await messaging();
+    var token = await m.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+    if (!token) throw new Error("Fikk ikke registrert enheten for varsler.");
+    return token;
+  }
+  async function keyFor(token) {
+    var buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token));
+    return "t" + Array.prototype.map.call(new Uint8Array(buf).slice(0, 16), function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+  }
+  async function commitPush(key, value) {
+    var fields = {};
+    if (value) {
+      var inner = {};
+      Object.keys(value).forEach(function (k) { inner[k] = { stringValue: String(value[k]) }; });
+      fields.tokens = { mapValue: { fields: {} } };
+      fields.tokens.mapValue.fields[key] = { mapValue: { fields: inner } };
+    }
+    var res = await fetch(COMMIT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ writes: [{ update: { name: PUSH_NAME, fields: fields }, updateMask: { fieldPaths: ["tokens." + key] } }] }),
+    });
+    if (!res.ok) {
+      var e = new Error(res.status === 403
+        ? "Firebase avviste registreringen. Sikkerhetsreglene må gi tilgang til push-dokumentet."
+        : "Fikk ikke lagret enheten (feil " + res.status + ").");
+      e.status = res.status; throw e;
+    }
+  }
+  async function saveToken(token) {
+    var key = await keyFor(token);
+    await commitPush(key, { token: token, device: deviceLabel(), updatedAt: new Date().toISOString() });
+    var old = lsGet("key", null);
+    if (old && old !== key) commitPush(old, null).catch(function () {});
+    lsSet("key", key); lsSet("token", token); lsSet("savedAt", Date.now());
+  }
+
+  async function enable() {
+    if (busy) return;
+    lastError = "";
+    // Tillatelsen må spørres om rett etter trykket, ellers avviser iPhone den
+    var permPromise = Notification.requestPermission();
+    busy = true; render();
+    try {
+      var perm = await permPromise;
+      if (perm !== "granted") { lsSet("on", false); return; }
+      var token = await getToken();
+      await saveToken(token);
+      lsSet("on", true);
+      if (window.Lager) window.Lager.toast("Varsler er slått på for denne enheten.", "info");
+    } catch (e) {
+      lastError = (e && e.message) || "Noe gikk galt da varsler skulle slås på.";
+    } finally { busy = false; render(); }
+  }
+  async function disable() {
+    if (busy) return;
+    busy = true; lastError = ""; render();
+    try {
+      var key = lsGet("key", null);
+      if (key) await commitPush(key, null);
+      try { var m = await messaging(); await m.deleteToken(); } catch (x) {}
+      lsSet("on", false); lsSet("key", null); lsSet("token", null); lsSet("savedAt", null);
+      if (window.Lager) window.Lager.toast("Varsler er slått av for denne enheten.", "info");
+    } catch (e) {
+      lastError = (e && e.message) || "Fikk ikke slått av varsler.";
+    } finally { busy = false; render(); }
+  }
+  // Holder registreringen fersk: tokens kan byttes ut av nettleseren, og
+  // skyfunksjonen rydder bort de som slutter å virke.
+  async function refresh() {
+    if (!configured() || !supported() || !lsGet("on", false) || Notification.permission !== "granted") return;
+    try {
+      var token = await getToken();
+      if (token !== lsGet("token", null) || Date.now() - lsGet("savedAt", 0) > DAY) await saveToken(token);
+    } catch (e) {}
+  }
+
+  function button(label, cls, fn) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = cls; b.textContent = label; b.disabled = busy;
+    b.addEventListener("click", fn);
+    return b;
+  }
+  function render() {
+    if (!configured()) { box.hidden = true; return; }
+    box.hidden = false;
+    box.classList.remove("is-on");
+    actionsEl.replaceChildren();
+    var on = lsGet("on", false);
+    if (!supported()) {
+      if (isIOS() && !standalone()) {
+        textEl.innerHTML = "<b>Varsler på iPhone:</b> Installer appen på Hjem-skjermen og åpne den derfra. Da kan du slå på varsler her.";
+        if (window.Install) actionsEl.append(button("Vis meg hvordan", "btn-lager", function () { window.Install.open(); }));
+      } else {
+        textEl.textContent = "Denne nettleseren støtter ikke push-varsler. Bruk Chrome, Edge eller Safari i en nyere versjon.";
+      }
+      return;
+    }
+    var perm = Notification.permission;
+    if (perm === "denied") {
+      textEl.innerHTML = "<b>Varsler er blokkert</b> for denne siden. Tillat varsler for oppgaver.graabe.in i innstillingene, så kan du slå dem på her.";
+      return;
+    }
+    if (on && perm === "granted") {
+      box.classList.add("is-on");
+      textEl.innerHTML = "<b>Push-varsler er på</b> for denne enheten. Du får beskjed når en vare når varselgrensen, også når appen er lukket.";
+      actionsEl.append(button(busy ? "Slår av …" : "Slå av", "btn-line small", disable));
+    } else {
+      textEl.innerHTML = "<b>Få varsel på denne enheten</b> når en vare når varselgrensen, også når appen er lukket.";
+      actionsEl.append(button(busy ? "Slår på …" : "Slå på varsler", "btn-lager", enable));
+    }
+    if (lastError) {
+      var err = document.createElement("span");
+      err.style.display = "block"; err.style.color = "var(--crit-ink)"; err.style.marginTop = "4px";
+      err.textContent = lastError;
+      textEl.append(err);
+    }
+  }
+
+  function init() { render(); refresh().then(render); }
+  return { init: init, render: render };
 })();
 </script>
 
@@ -2242,6 +2530,83 @@ showView(initialView());
 updateTabs();
 refreshNow();
 setInterval(tick, 1000);
+window.Push.init();
+
+// =====================================================================
+// INSTALLER SOM APP
+// Android og PC (Chrome, Edge): ekte installasjon via nettleserens egen dialog.
+// iPhone/iPad: Legg til på Hjem-skjerm, som installerer den som nettapp.
+// Mac Safari: Arkiv > Legg til i Dock.
+// =====================================================================
+window.Install = (function () {
+  const btn = document.getElementById("installBtn");
+  const dlg = document.getElementById("installDlg");
+  const ua = navigator.userAgent;
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isMacSafari = !isIOS && /Macintosh/.test(ua) && /Safari\//.test(ua) && !/Chrome|Chromium|CriOS|Edg|Firefox|FxiOS|OPR/.test(ua);
+  const installed = () => (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+  const SHARE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 11v9h14v-9"/></svg>';
+  let deferred = null;
+
+  function update() {
+    btn.hidden = installed() || !(deferred || isIOS || isMacSafari);
+  }
+  function fill(sub, steps, note) {
+    document.getElementById("installSub").textContent = sub;
+    document.getElementById("installSteps").innerHTML = steps.map((s) => "<li><span>" + s + "</span></li>").join("");
+    document.getElementById("installNote").textContent = note;
+  }
+  function open() {
+    if (isIOS) {
+      fill("På iPhone og iPad installeres appen via Hjem-skjermen.", [
+        "Trykk <b>Del</b> " + SHARE + " i Safari. Ser du den ikke, trykker du på <b>•••</b> nederst først.",
+        "Bla ned og velg <b>Legg til på Hjem-skjerm</b>.",
+        "Sjekk at <b>Åpne som nettapp</b> er slått på, og trykk <b>Legg til</b>.",
+      ], "Graabein ligger da på Hjem-skjermen med eget ikon og åpner i eget vindu uten Safari-linjene. Åpne den derfra, så kan du slå på varsler i Lager-fanen.");
+    } else if (isMacSafari) {
+      fill("På Mac installeres appen fra Safari-menyen.", [
+        "Velg <b>Arkiv</b> i menylinjen øverst.",
+        "Velg <b>Legg til i Dock</b> og trykk <b>Legg til</b>.",
+      ], "Graabein ligger da i Dock og Programmer-mappen, og åpner i eget vindu.");
+    } else {
+      fill("", ["Åpne nettlesermenyen og velg <b>Installer app</b>."], "");
+    }
+    dlg.showModal();
+  }
+
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferred = e;
+    update();
+  });
+  window.addEventListener("appinstalled", () => {
+    deferred = null;
+    update();
+    if (window.Lager) window.Lager.toast("Graabein er installert. Du finner den blant appene dine.", "info");
+  });
+  btn.addEventListener("click", async () => {
+    if (deferred) {
+      const ev = deferred;
+      deferred = null;
+      ev.prompt();
+      try { await ev.userChoice; } catch (x) {}
+      update();
+    } else {
+      open();
+    }
+  });
+  dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+
+  // Tjenestearbeideren gjør appen installerbar og tar imot push-varsler
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("firebase-messaging-sw.js").catch(() => {});
+    });
+  }
+  update();
+  if (window.Push) window.Push.render();
+  return { open };
+})();
 </script>
 </body>
 </html>
