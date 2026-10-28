@@ -2,10 +2,10 @@
 <html lang="nb">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Oppgaver – Graabein Skjegg</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
 :root {
   --bg: #1B1815;
@@ -17,7 +17,24 @@
   --accent: #C17A3D;
   --danger: #B5533C;
   --soon: #C6A15B;
+
+  /* Lagerdelen har sin egen farge, så det er lett å se hvor man er */
+  --lager: #7FA3B5;
+  --lager-ink: #0F171B;
+
+  /* Statusfarger for lager */
+  --ok: #6DAE78;   --ok-tint: #1F2C20;   --ok-ink: #A2D8AB;
+  --warn: #D6A84A; --warn-tint: #382D17; --warn-ink: #EFCB7C;
+  --crit: #D85B44; --crit-tint: #3B201A; --crit-ink: #FF9C88;
+  --none: #6F6556; --none-tint: #29231C; --none-ink: #B3A690;
+  --shadow: rgba(0,0,0,0.45);
+
+  --sec: var(--accent);
+  --sec-ink: #1B1815;
+  color-scheme: dark;
 }
+body[data-view="lager"] { --sec: var(--lager); --sec-ink: var(--lager-ink); }
+
 * { box-sizing: border-box; }
 html, body {
   margin: 0;
@@ -26,18 +43,123 @@ html, body {
   font-family: 'IBM Plex Sans', -apple-system, sans-serif;
   min-height: 100%;
 }
-#app {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 24px 16px 60px;
-}
+[hidden] { display: none !important; }
 h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; margin: 0; }
+button, input, select, textarea { font-family: inherit; }
+:focus-visible { outline: 2px solid var(--sec); outline-offset: 2px; }
 
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) 60px max(16px, env(safe-area-inset-left, 0px));
+}
+
+/* ---------- Toppfelt og faner ---------- */
+.appbar {
+  border-top: 4px solid var(--sec);
+  margin: 0 0 22px;
+}
+.appbar-in {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px));
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.brand .sub { margin: 0 0 2px; color: var(--text-muted); font-size: 13px; }
+.brand h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--sec);
+}
+.brand h1 svg { width: 26px; height: 26px; }
+
+.views { display: flex; gap: 6px; }
+.view-tab {
+  --tab-c: var(--accent);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.view-tab[data-view="lager"] { --tab-c: var(--lager); }
+.view-tab svg { width: 18px; height: 18px; flex: none; }
+.view-tab:hover { color: var(--text); }
+.view-tab[aria-selected="true"] {
+  color: var(--tab-c);
+  border-color: var(--tab-c);
+  background: color-mix(in srgb, var(--tab-c) 14%, var(--surface));
+}
+.vbadge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-weight: 700;
+  display: inline-grid;
+  place-items: center;
+  font-variant-numeric: tabular-nums;
+}
+.vbadge.is-alert { background: var(--crit); color: #fff; }
+
+@media (max-width: 699px) {
+  .appbar-in { padding-top: max(16px, env(safe-area-inset-top, 0px)); }
+  .brand h1 { font-size: 27px; }
+  .views {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 15;
+    gap: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    padding: 0 env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  }
+  .view-tab {
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+    justify-content: center;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    padding: 9px 4px 10px;
+    font-size: 12.5px;
+  }
+  .view-tab svg { width: 22px; height: 22px; }
+  .view-tab[aria-selected="true"] { background: none; }
+  .view-tab[aria-selected="true"]::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 22%; right: 22%;
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+    background: var(--tab-c);
+  }
+  .view-tab .vbadge { position: absolute; top: 5px; left: calc(50% + 8px); }
+  .page { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* ---------- Oppgaver (uendret utseende) ---------- */
 .loading { color: var(--text-muted); padding: 40px 0; text-align: center; }
-
-.header { margin-bottom: 20px; }
-.header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; }
-.sub { margin: 2px 0 0; color: var(--text-muted); font-size: 13px; }
 
 .roster {
   display: flex;
@@ -313,18 +435,516 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; margin: 0; }
   text-align: center;
   z-index: 30;
 }
+@media (max-width: 699px) {
+  .save-error { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* ---------- Lager ---------- */
+.btn-lager {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--lager);
+  color: var(--lager-ink);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-lager svg { width: 16px; height: 16px; }
+.btn-line {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 0 13px;
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-line svg { width: 15px; height: 15px; }
+.btn-line:hover { border-color: var(--text-muted); }
+.btn-line.small { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.btn-line:disabled, .btn-lager:disabled { opacity: 0.45; cursor: default; }
+.btn-danger { background: var(--danger); color: #fff; border: none; border-radius: 8px; padding: 10px 14px; font-weight: 600; font-size: 14px; cursor: pointer; }
+.btn-text-danger { background: none; border: 1px solid transparent; color: var(--crit-ink); border-radius: 8px; padding: 10px 8px; font-weight: 600; font-size: 14px; cursor: pointer; }
+.btn-text-danger:hover { border-color: var(--crit); }
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  padding: 0;
+  cursor: pointer;
+}
+.icon-btn svg { width: 18px; height: 18px; }
+.icon-btn.small { width: 32px; height: 32px; background: none; }
+.icon-btn[aria-pressed="false"] { color: var(--text-muted); }
+
+.l-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.l-stat { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.l-stat b { color: var(--text); font-weight: 600; }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--none); }
+.d-ok { background: var(--ok); } .d-warn { background: var(--warn); } .d-crit { background: var(--crit); }
+.d-none { background: transparent; border: 1.5px dashed var(--none-ink); }
+
+.l-alerts {
+  background: var(--crit-tint);
+  border: 1px solid color-mix(in srgb, var(--crit) 45%, var(--line));
+  border-radius: 12px;
+  padding: 12px 14px 14px;
+  margin-bottom: 20px;
+}
+.l-alerts-head { display: flex; align-items: center; gap: 8px; color: var(--crit-ink); }
+.l-alerts-head svg { width: 18px; height: 18px; flex: none; }
+.l-alerts-head h2 { font-size: 17px; font-weight: 700; }
+.l-alerts-n { font-size: 12.5px; white-space: nowrap; }
+.l-alerts-head .spacer { flex: 1; }
+.link-btn { background: none; border: 0; padding: 4px; color: var(--crit-ink); font-weight: 600; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.l-alert-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.ar {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1px 12px;
+  align-items: center;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--text);
+  cursor: pointer;
+}
+.ar:hover { border-color: var(--crit); }
+.ar-name { font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
+.ar-sub { grid-column: 1; font-size: 12px; color: var(--text-muted); overflow-wrap: anywhere; }
+.ar-num { grid-row: 1 / span 2; grid-column: 2; text-align: right; font-size: 24px; font-weight: 700; line-height: 1; color: var(--st-ink); font-variant-numeric: tabular-nums; }
+.ar-num small { display: block; margin-top: 3px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; font-weight: 500; color: var(--text-muted); }
+
+.l-head-actions { display: flex; align-items: center; gap: 8px; }
+.l-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+.l-search {
+  flex: 1 1 220px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 10px;
+  min-height: 40px;
+  color: var(--text-muted);
+}
+.l-search svg { width: 16px; height: 16px; flex: none; }
+.l-search input { flex: 1; min-width: 0; height: 38px; border: 0; background: transparent; outline: 0; color: var(--text); font-size: 14px; }
+.l-search:focus-within { outline: 2px solid var(--lager); outline-offset: 1px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; min-height: 38px; padding: 0 12px; color: var(--text-muted); font-weight: 600; font-size: 13.5px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--lager); color: var(--lager-ink); }
+.catnav { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 8px; scrollbar-width: thin; }
+.cchip { flex: none; display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--surface); color: var(--text); border-radius: 999px; padding: 5px 12px 5px 10px; font-size: 13px; font-weight: 500; cursor: pointer; }
+.cchip-n { font-size: 11px; color: var(--text-muted); }
+
+.l-list { display: grid; gap: 26px; margin-top: 14px; }
+.cat { scroll-margin-top: 16px; }
+.cat-head { display: flex; align-items: center; gap: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.cat-toggle { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; border: 0; background: none; padding: 4px 0; text-align: left; color: var(--text); cursor: pointer; }
+.cat-toggle h2 { font-size: 20px; font-weight: 700; overflow-wrap: anywhere; min-width: 0; }
+.chev { width: 16px; height: 16px; flex: none; color: var(--text-muted); transition: transform .15s ease; }
+.collapsed .chev { transform: rotate(-90deg); }
+.cat-count { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+.cat-flags { display: flex; gap: 8px; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.cat-flags span { display: inline-flex; align-items: center; gap: 4px; }
+.cat-empty { margin: 0; padding: 14px 0 4px; color: var(--text-muted); font-size: 14px; }
+
+.item {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 11px 0 11px 16px;
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: 80px;
+  scroll-margin-bottom: 110px;
+}
+.item::before { content: ""; position: absolute; left: 0; top: 11px; bottom: 11px; width: 4px; border-radius: 3px; background: var(--st); }
+.s-ok { --st: var(--ok); --st-tint: var(--ok-tint); --st-ink: var(--ok-ink); }
+.s-warn { --st: var(--warn); --st-tint: var(--warn-tint); --st-ink: var(--warn-ink); }
+.s-crit { --st: var(--crit); --st-tint: var(--crit-tint); --st-ink: var(--crit-ink); }
+.s-none { --st: var(--none); --st-tint: var(--none-tint); --st-ink: var(--none-ink); }
+.item-main { min-width: 0; }
+.item-name { display: inline-flex; align-items: center; gap: 7px; max-width: 100%; border: 0; background: none; padding: 2px 0; text-align: left; color: var(--text); font-weight: 600; font-size: 15.5px; line-height: 1.25; cursor: pointer; }
+.item-name .nm { overflow-wrap: anywhere; }
+.pen { width: 13px; height: 13px; flex: none; color: var(--text-muted); opacity: 0; transition: opacity .12s; }
+.item:hover .pen, .item-name:focus-visible .pen { opacity: 0.9; }
+@media (hover: none) { .pen { opacity: 0.55; } }
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 3px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); }
+.pill { font-weight: 600; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--st-tint); color: var(--st-ink); }
+.bellmark { display: inline-flex; align-items: center; gap: 3px; color: var(--crit-ink); font-weight: 600; }
+.bellmark svg { width: 12px; height: 12px; }
+
+.tally { display: flex; align-items: center; gap: 6px; }
+.tb {
+  min-width: 46px;
+  height: 46px;
+  padding: 0 6px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 15.5px;
+  font-variant-numeric: tabular-nums;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+.tb.ten { color: var(--text-muted); font-size: 14px; }
+.tb:hover:not(:disabled) { border-color: var(--text-muted); }
+.tb:active:not(:disabled) { transform: translateY(1px); background: var(--surface-2); }
+.tb:disabled { opacity: 0.3; cursor: default; }
+.count {
+  width: 78px;
+  height: 50px;
+  border-radius: 9px;
+  border: 2px solid var(--st);
+  background: var(--st-tint);
+  color: var(--st-ink);
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 0 4px;
+}
+.count::placeholder { color: var(--none-ink); }
+.s-none .count { border-style: dashed; }
+.count:focus { outline: 2px solid var(--lager); outline-offset: 2px; }
+.count.pulse { animation: pulse .9s ease; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 var(--st); } 100% { box-shadow: 0 0 0 10px transparent; } }
+.item.flash { animation: flash 1.6s ease; }
+@keyframes flash { 0%, 30% { background: color-mix(in srgb, var(--lager) 18%, transparent); } 100% { background: transparent; } }
+
+@media (max-width: 620px) {
+  .item { grid-template-columns: minmax(0, 1fr); }
+  .tally { gap: 5px; }
+  .tb { flex: 1 1 0; min-width: 0; }
+  .count { flex: 1.4 1 0; width: auto; min-width: 0; }
+  .add-in span { display: none; }
+}
+
+.l-state { padding: 40px 0; text-align: center; color: var(--text-muted); font-size: 14px; }
+.l-state h2 { font-size: 22px; color: var(--text); margin-bottom: 8px; }
+.l-state p { margin: 0 auto 6px; max-width: 46ch; line-height: 1.5; }
+.l-state code { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: var(--text); }
+.l-state-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 16px; }
+.l-banner { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 16px; padding: 10px 12px; border-radius: 8px; border: 1px dashed var(--line); background: var(--surface); color: var(--text-muted); font-size: 13.5px; }
+.l-foot { margin: 26px 0 0; font-size: 12.5px; color: var(--text-muted); }
+.l-foot b { color: var(--text); font-weight: 600; }
+
+/* Lager-dialoger, samme form som oppgaveskjemaet */
+dialog.l-dlg {
+  border: 1px solid var(--line);
+  border-radius: 16px 16px 0 0;
+  padding: 0;
+  margin: auto auto 0;
+  width: 100%;
+  max-width: 500px;
+  max-height: 88vh;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 -10px 40px var(--shadow);
+}
+@media (min-width: 700px) { dialog.l-dlg { margin: auto; border-radius: 16px; } }
+dialog.l-dlg::backdrop { background: rgba(0,0,0,0.55); }
+.l-form { padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 14px; }
+.l-form h3 { font-size: 19px; }
+.field { display: grid; gap: 6px; min-width: 0; font-size: 13px; color: var(--text-muted); }
+.field input, .field select {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 0 10px;
+  font-size: 15px;
+}
+.field input:focus, .field select:focus { outline: 2px solid var(--lager); outline-offset: 0; border-color: transparent; }
+.row2 { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 12px; }
+.row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+fieldset.limits { margin: 0; border: 1px solid var(--line); border-radius: 10px; padding: 12px 12px 14px; display: grid; gap: 12px; min-width: 0; }
+fieldset.limits legend { padding: 0 6px; color: var(--text); font-weight: 600; font-size: 13px; }
+.lim input { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.lim.warn input { border-color: var(--warn); }
+.lim.crit input { border-color: var(--crit); }
+.lim.bell input { border-color: var(--text-muted); }
+.scale { display: flex; gap: 2px; }
+.z { display: grid; gap: 4px; min-width: 54px; }
+.z i { display: block; height: 9px; }
+.z.crit i { background: var(--crit); border-radius: 5px 0 0 5px; }
+.z.warn i { background: var(--warn); }
+.z.ok i { background: var(--ok); border-radius: 0 5px 5px 0; }
+.z span { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scale-text { margin: 0; font-size: 13px; color: var(--text); }
+.scale-text b { color: var(--crit-ink); }
+.form-err { margin: 0; padding: 8px 10px; border-radius: 8px; background: var(--crit-tint); color: var(--crit-ink); font-size: 13.5px; font-weight: 600; }
+.l-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.l-actions .spacer { flex: 1; }
+.l-confirm { display: grid; gap: 10px; padding: 12px; border-radius: 10px; background: var(--crit-tint); }
+.l-confirm p { margin: 0; font-weight: 600; font-size: 14px; }
+.l-confirm .row { display: flex; flex-wrap: wrap; gap: 8px; }
+.order-row { display: flex; gap: 8px; }
+@media (max-width: 420px) { .row2 { grid-template-columns: 1fr; } .l-form { padding-inline: 16px; } }
+
+/* Lagervarsler */
+.toasts {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 40;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  pointer-events: none;
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+@media (max-width: 699px) { .toasts { padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px)); } }
+.toast {
+  pointer-events: auto;
+  width: min(480px, 100%);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 10px 11px 14px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  box-shadow: 0 10px 32px var(--shadow);
+  font-size: 14px;
+}
+.toast.alert { border: 2px solid var(--crit); }
+.toast.err { background: var(--crit-tint); color: var(--crit-ink); border-color: var(--crit); }
+.toast-body { flex: 1; min-width: 0; display: grid; gap: 2px; padding-top: 1px; }
+.toast-body strong { color: var(--crit-ink); font-size: 12.5px; letter-spacing: 0.04em; text-transform: uppercase; }
+.toast-act { border: 0; border-radius: 7px; padding: 6px 12px; background: var(--crit); color: #fff; font-weight: 600; cursor: pointer; }
+.toast-x { border: 0; background: none; padding: 4px; color: inherit; opacity: 0.7; display: grid; place-items: center; cursor: pointer; }
+.toast-x svg { width: 16px; height: 16px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before { animation: none !important; transition: none !important; }
+}
 </style>
 </head>
-<body>
-<div id="app"><div class="loading">Henter oppgaver …</div></div>
+<body data-view="oppgaver">
+
+<header class="appbar">
+  <div class="appbar-in">
+    <div class="brand">
+      <p class="sub">Graabein Skjegg</p>
+      <h1 id="viewTitle"></h1>
+    </div>
+    <nav class="views" role="tablist" aria-label="Velg del av appen">
+      <a href="#oppgaver" class="view-tab" data-view="oppgaver" role="tab" aria-selected="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1.2 1.2L7 5M3.5 12l1.2 1.2L7 11M3.5 18l1.2 1.2L7 17"/></svg>
+        <span>Oppgaver</span>
+        <span class="vbadge" id="badgeTasks" hidden></span>
+      </a>
+      <a href="#lager" class="view-tab" data-view="lager" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5Z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>
+        <span>Lager</span>
+        <span class="vbadge is-alert" id="badgeLager" hidden></span>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<div class="page">
+
+<section id="view-oppgaver" class="view" role="tabpanel" aria-label="Oppgaver">
+  <div id="app"><div class="loading">Henter oppgaver …</div></div>
+</section>
+
+<section id="view-lager" class="view" role="tabpanel" aria-label="Lager" hidden>
+  <div id="l-banner" class="l-banner" hidden><span id="l-bannerText"></span></div>
+
+  <div id="l-loading" class="loading">Henter lageret …</div>
+
+  <div id="l-error" class="l-state" hidden>
+    <h2 id="l-errorTitle"></h2>
+    <p id="l-errorText"></p>
+    <div class="l-state-actions"><button type="button" class="btn-line" id="l-retry">Prøv igjen</button></div>
+  </div>
+
+  <div id="l-ready" hidden>
+    <div class="l-stats" id="l-stats">
+      <span class="l-stat"><b id="l-stTotal">0</b> varer</span>
+      <span class="l-stat"><i class="dot d-ok"></i><b id="l-stOk">0</b> grønne</span>
+      <span class="l-stat"><i class="dot d-warn"></i><b id="l-stWarn">0</b> gule</span>
+      <span class="l-stat"><i class="dot d-crit"></i><b id="l-stCrit">0</b> røde</span>
+      <span class="l-stat" id="l-stNoneWrap"><i class="dot d-none"></i><b id="l-stNone">0</b> ikke telt</span>
+    </div>
+
+    <section id="l-alerts" class="l-alerts" aria-labelledby="l-alertsH" hidden>
+      <div class="l-alerts-head">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <h2 id="l-alertsH">Under varslingsgrensen</h2>
+        <span class="l-alerts-n" id="l-alertsN"></span>
+        <span class="spacer"></span>
+        <button type="button" class="link-btn" id="l-alertsToggle">Skjul</button>
+      </div>
+      <ul class="l-alert-list" id="l-alertList"></ul>
+    </section>
+
+    <div class="list-head">
+      <h2>Varer</h2>
+      <div class="l-head-actions">
+        <button type="button" class="icon-btn" id="l-sound" aria-pressed="true"></button>
+        <button type="button" class="btn-lager" id="l-addItem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Ny vare</button>
+      </div>
+    </div>
+
+    <div id="l-toolsWrap">
+      <div class="l-tools">
+        <label class="l-search" for="l-q">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+          <input id="l-q" type="search" placeholder="Søk etter vare eller kategori" autocomplete="off">
+        </label>
+        <div class="seg" role="group" aria-label="Filter">
+          <button type="button" data-f="all" aria-pressed="true">Alle</button>
+          <button type="button" data-f="low" aria-pressed="false">Trenger påfyll</button>
+        </div>
+        <button type="button" class="btn-line" id="l-addCat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Ny kategori</button>
+      </div>
+      <nav id="l-catNav" class="catnav" aria-label="Kategorier" hidden></nav>
+    </div>
+
+    <div id="l-list" class="l-list"></div>
+
+    <div id="l-emptyAll" class="l-state" hidden>
+      <h2>Lageret er tomt</h2>
+      <p>Start med sortimentet: kategoriene Skjeggpleie, Styling, Verktøy og Klær med varene dere selger, uten antall. Du kan endre navn, legge til dufter og slette det som ikke passer.</p>
+      <div class="l-state-actions">
+        <button type="button" class="btn-lager" id="l-seed">Legg inn sortimentet</button>
+        <button type="button" class="btn-line" id="l-emptyCat">Start med egen kategori</button>
+      </div>
+    </div>
+
+    <div id="l-emptyFilter" class="l-state" hidden>
+      <p id="l-emptyFilterText"></p>
+      <div class="l-state-actions"><button type="button" class="btn-line" id="l-clearFilter">Vis alle varer</button></div>
+    </div>
+
+    <p class="l-foot" id="l-foot">Tips: Skriv <b>+12</b> eller <b>-3</b> i antallsfeltet for å legge til eller trekke fra. Endringer lagres for alle med en gang.</p>
+  </div>
+</section>
+
+</div>
+
+<dialog id="l-itemDlg" class="l-dlg" aria-labelledby="l-itemDlgH">
+  <form id="l-itemForm" class="l-form" novalidate>
+    <h3 id="l-itemDlgH">Ny vare</h3>
+    <label class="field" for="l-fName">Navn<input id="l-fName" autocomplete="off" maxlength="120"></label>
+    <div class="row2">
+      <label class="field" for="l-fCat">Kategori<select id="l-fCat"></select></label>
+      <label class="field" for="l-fCount">Antall nå<input id="l-fCount" inputmode="numeric" autocomplete="off" placeholder="Ikke telt"></label>
+    </div>
+    <label class="field" for="l-fNewCat" id="l-fNewCatWrap" hidden>Navn på ny kategori<input id="l-fNewCat" autocomplete="off" maxlength="80"></label>
+    <fieldset class="limits">
+      <legend>Farger og varsel for denne varen</legend>
+      <div class="row3">
+        <label class="field lim warn" for="l-fYellow">Gul ved ≤<input id="l-fYellow" inputmode="numeric" autocomplete="off"></label>
+        <label class="field lim crit" for="l-fRed">Rød ved ≤<input id="l-fRed" inputmode="numeric" autocomplete="off"></label>
+        <label class="field lim bell" for="l-fAlert">Varsle ved ≤<input id="l-fAlert" inputmode="numeric" autocomplete="off"></label>
+      </div>
+      <div class="scale" id="l-scale" aria-hidden="true">
+        <div class="z crit" id="l-zR"><i></i><span></span></div>
+        <div class="z warn" id="l-zY"><i></i><span></span></div>
+        <div class="z ok" id="l-zG"><i></i><span></span></div>
+      </div>
+      <p class="scale-text" id="l-scaleText"></p>
+    </fieldset>
+    <p class="form-err" id="l-itemErr" hidden></p>
+    <div class="l-confirm" id="l-delConfirm" hidden>
+      <p id="l-delText"></p>
+      <div class="row">
+        <button type="button" class="btn-danger" id="l-delYes">Slett varen</button>
+        <button type="button" class="btn-line" id="l-delNo">Behold</button>
+      </div>
+    </div>
+    <div class="l-actions">
+      <button type="button" class="btn-text-danger" id="l-delItem">Slett vare</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn-line" data-close>Avbryt</button>
+      <button type="submit" class="btn-lager" id="l-saveItem">Legg til</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="l-catDlg" class="l-dlg" aria-labelledby="l-catDlgH">
+  <form id="l-catForm" class="l-form" novalidate>
+    <h3 id="l-catDlgH">Ny kategori</h3>
+    <label class="field" for="l-cName">Navn<input id="l-cName" autocomplete="off" maxlength="80"></label>
+    <div class="order-row" id="l-catOrder" hidden>
+      <button type="button" class="btn-line small" id="l-catUp">Flytt opp</button>
+      <button type="button" class="btn-line small" id="l-catDown">Flytt ned</button>
+    </div>
+    <p class="form-err" id="l-catErr" hidden></p>
+    <div class="l-confirm" id="l-catDelConfirm" hidden>
+      <p id="l-catDelText"></p>
+      <div class="row">
+        <button type="button" class="btn-line" id="l-catDelMove">Slett og flytt varene til Uten kategori</button>
+        <button type="button" class="btn-danger" id="l-catDelAll">Slett kategorien og varene</button>
+        <button type="button" class="btn-line" id="l-catDelNo">Behold</button>
+      </div>
+    </div>
+    <div class="l-actions">
+      <button type="button" class="btn-text-danger" id="l-delCat">Slett kategori</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn-line" data-close>Avbryt</button>
+      <button type="submit" class="btn-lager" id="l-catSave">Legg til</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
 
 <script>
+// =====================================================================
+// OPPGAVER
+// =====================================================================
+
 // ---- Oppsett ----
 const FIREBASE_PROJECT_ID = "graabein-oppgaver";
 const DOC_COLLECTION = "graabein-oppgaver";
 const DOC_ID = "data";
 const REST_URL = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/${DOC_COLLECTION}/${DOC_ID}`;
-const POLL_INTERVAL_MS = 4000;
+// Oppgavene lagrer bare disse to feltene, så de aldri kan overskrive annen data
+const TASKS_SAVE_URL = REST_URL + "?updateMask.fieldPaths=employees&updateMask.fieldPaths=tasks";
 
 const EMPLOYEE_COLORS = ["#C17A3D", "#5E7A8C", "#7C8478", "#9C5F5F", "#8A6E4B", "#6E7B5E"];
 
@@ -408,7 +1028,7 @@ function fromFirestoreFields(fields) {
 }
 
 async function fetchFromServer() {
-  const res = await fetch(REST_URL);
+  const res = await fetch(REST_URL, { cache: "no-store" });
   if (res.status === 404) return { employees: [], tasks: [] };
   if (!res.ok) throw new Error("HTTP " + res.status);
   const json = await res.json();
@@ -427,14 +1047,14 @@ async function load() {
   }
   state.loaded = true;
   // Ikke tegn om midt i at noen skriver i et åpent skjema - det ville nullstilt feltet
-  if (state.addingEmployee || state.showForm) return;
+  if (state.addingEmployee || state.showForm) { updateTabs(); return; }
   render();
 }
 
 async function persist(nextEmployees, nextTasks) {
   saving = true;
   try {
-    const res = await fetch(REST_URL, {
+    const res = await fetch(TASKS_SAVE_URL, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fields: toFirestoreFields({ employees: nextEmployees, tasks: nextTasks }) }),
@@ -613,20 +1233,15 @@ function render() {
   }
 
   app.innerHTML = `
-    <header class="header">
-      <h1>Oppgaver</h1>
-      <p class="sub">Graabein Skjegg</p>
-    </header>
-
     <nav class="roster" aria-label="Velg ansatt">${rosterHtml}</nav>
 
-    <main>
+    <div>
       <div class="list-head">
         <h2>${state.selected === "all" ? "Alle oppgaver" : selectedEmployee ? esc(selectedEmployee.name) + " sine oppgaver" : "Oppgaver"}</h2>
         <button class="btn-primary" data-action="open-form">Ny oppgave</button>
       </div>
       ${tasksHtml}
-    </main>
+    </div>
 
     ${
       state.showForm
@@ -679,6 +1294,7 @@ function render() {
       if (e.key === "Enter") submitTask();
     });
   }
+  updateTabs();
 }
 
 // ---- Klikk-håndtering (event delegation) ----
@@ -707,10 +1323,925 @@ document.addEventListener("click", (e) => {
   else if (action === "cancel-delete-task") setState({ confirmDeleteTaskId: null });
   else if (action === "confirm-delete-task") deleteTask(id);
 });
+</script>
 
-// ---- Start ----
-load();
-setInterval(load, POLL_INTERVAL_MS);
+<script>
+// =====================================================================
+// LAGER
+// Ligger i eget dokument (graabein-oppgaver/lager), så oppgaver og lager
+// aldri kan overskrive hverandre. Hver vare lagres for seg, og +/- bruker
+// Firestore sin innebygde opptelling, så to som teller samtidig ikke
+// visker ut hverandres trykk.
+// =====================================================================
+window.Lager = (function () {
+  'use strict';
+  var LAGER_NAME = 'projects/' + FIREBASE_PROJECT_ID + '/databases/(default)/documents/' + DOC_COLLECTION + '/lager';
+  var LAGER_URL = 'https://firestore.googleapis.com/v1/' + LAGER_NAME;
+  var COMMIT_URL = 'https://firestore.googleapis.com/v1/projects/' + FIREBASE_PROJECT_ID + '/databases/(default)/documents:commit';
+
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var UNC = '__none', NEWCAT = '__new';
+  var DEF = { yellow: 20, red: 10, alertAt: 10 };
+  var coll = new Intl.Collator('nb', { sensitivity: 'base', numeric: true });
+  var reduceMotion = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  var SV = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"';
+  var ICON = {
+    chev: '<svg class="chev" ' + SV + ' stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>',
+    pen: '<svg class="pen" ' + SV + ' stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+    plus: '<svg ' + SV + ' stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>',
+    more: '<svg ' + SV + ' stroke-width="2"><circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/></svg>',
+    bell: '<svg ' + SV + ' stroke-width="2.2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>',
+    x: '<svg ' + SV + ' stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    soundOn: '<svg ' + SV + ' stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>',
+    soundOff: '<svg ' + SV + ' stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m22 9-6 6M16 9l6 6"/></svg>'
+  };
+
+  function lsGet(k, d) { try { var v = localStorage.getItem('lager:' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
+  function lsSet(k, v) { try { localStorage.setItem('lager:' + k, JSON.stringify(v)); } catch (e) {} }
+
+  var L = {
+    loaded: false, err: null, banner: null, cats: new Map(), items: new Map(),
+    filter: lsGet('filter', 'all') === 'low' ? 'low' : 'all', q: '',
+    collapsed: new Set(lsGet('collapsed', [])), alertsOpen: lsGet('alertsOpen', true) !== false,
+    sound: lsGet('sound', true) !== false, flashOnArrive: null
+  };
+  var pend = new Map();
+  var lastShown = new Map();
+  var pulse = new Set();
+  var primed = false;
+
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function num(v, d) { return (typeof v === 'number' && isFinite(v)) ? v : d; }
+  function toInt(v) { v = String(v == null ? '' : v).trim(); return /^\d{1,7}$/.test(v) ? parseInt(v, 10) : NaN; }
+  function newId(prefix) { return prefix + uid().replace(/[^a-z0-9]/gi, ''); }
+
+  /* ---------- Firestore ---------- */
+  function fv(v) {
+    if (v === null || v === undefined) return { nullValue: null };
+    if (typeof v === 'number') return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+    if (typeof v === 'string') return { stringValue: v };
+    if (typeof v === 'boolean') return { booleanValue: v };
+    if (Array.isArray(v)) return { arrayValue: { values: v.map(fv) } };
+    var f = {}; for (var k in v) f[k] = fv(v[k]);
+    return { mapValue: { fields: f } };
+  }
+  // Én skriving mot lager-dokumentet: sets = [[sti, verdi]], dels = [sti], transforms = Firestore fieldTransforms
+  function wDoc(sets, dels, transforms) {
+    var fields = {}, mask = [];
+    (sets || []).forEach(function (s) {
+      var path = s[0], obj = fields;
+      mask.push(path.join('.'));
+      for (var i = 0; i < path.length - 1; i++) {
+        if (!obj[path[i]]) obj[path[i]] = { mapValue: { fields: {} } };
+        obj = obj[path[i]].mapValue.fields;
+      }
+      obj[path[path.length - 1]] = fv(s[1]);
+    });
+    (dels || []).forEach(function (p) { mask.push(p.join('.')); });
+    var w = { update: { name: LAGER_NAME, fields: fields }, updateMask: { fieldPaths: mask } };
+    if (transforms && transforms.length) w.updateTransforms = transforms;
+    return w;
+  }
+  function itemSets(id, partial) { return Object.keys(partial).map(function (k) { return [['items', id, k], partial[k]]; }); }
+
+  var epoch = 0, writing = 0, polling = false, queue = Promise.resolve();
+  function commit(writes) {
+    var run = async function () {
+      writing++;
+      try {
+        var res = await fetch(COMMIT_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ writes: writes }) });
+        if (!res.ok) {
+          var t = ''; try { t = await res.text(); } catch (x) {}
+          var e = new Error('HTTP ' + res.status + (t ? ': ' + t.slice(0, 300) : '')); e.status = res.status; throw e;
+        }
+        epoch++;
+      } finally { writing--; }
+    };
+    var p = queue.then(run, run);
+    queue = p.catch(function () {});
+    return p;
+  }
+  function hasInflight() { var r = false; pend.forEach(function (p) { if (p.inflight) r = true; }); return r; }
+  function toMap(obj, items) {
+    var m = new Map();
+    if (obj && typeof obj === 'object') Object.keys(obj).forEach(function (k) {
+      var v = obj[k];
+      if (v && typeof v === 'object' && (!items || v.name)) m.set(k, v);
+    });
+    return m;
+  }
+  async function poll() {
+    if (polling || writing || hasInflight()) return;
+    polling = true;
+    var ep = epoch;
+    try {
+      var res = await fetch(LAGER_URL, { cache: 'no-store' });
+      var data;
+      if (res.status === 404) data = {};
+      else if (res.status === 403) { L.err = 'rules'; L.loaded = true; render(); return; }
+      else if (!res.ok) throw new Error('HTTP ' + res.status);
+      else data = fromFirestoreFields((await res.json()).fields || {});
+      if (ep !== epoch || writing) return;
+      L.err = null; L.banner = null;
+      L.cats = toMap(data.categories, false);
+      L.items = toMap(data.items, true);
+      L.loaded = true;
+      pend.forEach(function (p, id) { if (!L.items.has(id)) { clearTimeout(p.timer); pend.delete(id); } });
+      render();
+    } catch (e) {
+      if (!L.loaded || L.err) { L.loaded = true; L.err = 'net'; }
+      else L.banner = 'Mistet kontakten med lageret. Det du ser kan være utdatert.';
+      render();
+    } finally { polling = false; }
+  }
+  function errText(e) {
+    var s = e && e.status;
+    if (s === 403) return 'Firebase avviste lagringen. Sikkerhetsreglene må gi tilgang til lager-dokumentet.';
+    if (s === 429) return 'For mange endringer på kort tid. Vent litt og prøv igjen.';
+    if (s && s >= 400 && s < 500) return 'Firebase avviste endringen (' + e.message.slice(0, 120) + ').';
+    return 'Endringen ble ikke lagret. Sjekk nettforbindelsen og prøv igjen.';
+  }
+
+  /* ---------- Visningsverdier ---------- */
+  function baseOf(id) { var r = L.items.get(id); return r && typeof r.count === 'number' ? r.count : null; }
+  function shown(id) {
+    var v = baseOf(id), p = pend.get(id);
+    if (!p) return v;
+    if (p.inflight) v = p.inflight.abs != null ? p.inflight.abs : Math.max(0, (v || 0) + p.inflight.delta);
+    if (p.abs != null) return p.abs;
+    if (p.delta) return Math.max(0, (v || 0) + p.delta);
+    return v;
+  }
+  function itemOf(id) {
+    var raw = L.items.get(id); if (!raw) return null;
+    var red = num(raw.red, DEF.red);
+    return {
+      id: id, name: String(raw.name || 'Uten navn'), categoryId: raw.categoryId || null,
+      yellow: num(raw.yellow, DEF.yellow), red: red, alertAt: num(raw.alertAt, red),
+      c: shown(id), updatedAt: raw.updatedAt || null, alertSince: raw.alertSince || null
+    };
+  }
+  function status(it) { var c = it.c; if (c == null) return 'none'; if (c <= it.red) return 'crit'; if (c <= it.yellow) return 'warn'; return 'ok'; }
+  function alerting(it) { return it.c != null && it.c <= it.alertAt; }
+  var ST_LABEL = { ok: 'Grønn', warn: 'Gul', crit: 'Rød', none: 'Ikke telt' };
+  function catList() {
+    var a = [];
+    L.cats.forEach(function (d, id) { a.push({ id: id, name: String(d.name || 'Uten navn'), order: num(d.order, 0) }); });
+    return a.sort(function (x, y) { return x.order - y.order || coll.compare(x.name, y.name); });
+  }
+  function catName(id) { var c = id && L.cats.get(id); return c ? String(c.name || 'Uten navn') : 'Uten kategori'; }
+  function catKey(id) { return id && L.cats.has(id) ? id : UNC; }
+  function dayStart(t) { var d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); }
+  function when(iso) {
+    if (!iso) return ''; var d = new Date(iso), t = d.getTime(); if (isNaN(t)) return '';
+    var today = dayStart(Date.now());
+    var hm = d.toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' });
+    if (t >= today) return 'i dag ' + hm;
+    if (t >= today - 864e5) return 'i går ' + hm;
+    return d.toLocaleDateString('nb-NO', { day: 'numeric', month: 'short' });
+  }
+  function since(iso) {
+    if (!iso) return ''; var d = new Date(iso), t = d.getTime(); if (isNaN(t)) return '';
+    var today = dayStart(Date.now());
+    if (t >= today) return 'siden i dag';
+    if (t >= today - 864e5) return 'siden i går';
+    return 'siden ' + d.toLocaleDateString('nb-NO', { day: 'numeric', month: 'short' });
+  }
+
+  /* ---------- Lyd ---------- */
+  var actx = null;
+  function unlockAudio() {
+    try {
+      if (!actx) { var AC = window.AudioContext || window.webkitAudioContext; if (AC) actx = new AC(); }
+      if (actx && actx.state === 'suspended') actx.resume().catch(function () {});
+    } catch (e) {}
+  }
+  document.addEventListener('pointerdown', unlockAudio, { passive: true });
+  document.addEventListener('keydown', unlockAudio);
+  function chime() {
+    if (!L.sound || !actx) return;
+    try {
+      var t = actx.currentTime;
+      [880, 660].forEach(function (f, i) {
+        var o = actx.createOscillator(), g = actx.createGain(), s = t + i * 0.17;
+        o.type = 'sine'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, s);
+        g.gain.exponentialRampToValueAtTime(0.2, s + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, s + 0.3);
+        o.connect(g); g.connect(actx.destination); o.start(s); o.stop(s + 0.32);
+      });
+    } catch (e) {}
+  }
+
+  /* ---------- Meldinger ---------- */
+  function toast(msg, kind, opts) {
+    kind = kind || 'info'; opts = opts || {};
+    var box = $('#toasts');
+    var t = el('div', 'toast ' + kind);
+    t.setAttribute('role', kind === 'info' ? 'status' : 'alert');
+    var body = el('div', 'toast-body');
+    if (opts.title) body.append(el('strong', null, opts.title));
+    body.append(el('span', null, msg));
+    t.append(body);
+    var timer = 0;
+    function close() { clearTimeout(timer); t.remove(); }
+    if (opts.action) {
+      var a = el('button', 'toast-act', opts.action.label); a.type = 'button';
+      a.addEventListener('click', function () { close(); opts.action.run(); });
+      t.append(a);
+    }
+    var x = el('button', 'toast-x'); x.type = 'button'; x.setAttribute('aria-label', 'Lukk'); x.innerHTML = ICON.x;
+    x.addEventListener('click', close); t.append(x);
+    box.append(t);
+    while (box.children.length > 4) box.firstElementChild.remove();
+    if (kind !== 'alert') timer = setTimeout(close, kind === 'err' ? 7000 : 2800);
+  }
+  function alertToast(it) {
+    toast(it.name + ' er nede i ' + it.c + ' stk. Varselgrensen er ' + it.alertAt + '.', 'alert',
+      { title: 'Lagervarsel · ' + catName(it.categoryId), action: { label: 'Vis', run: function () { jumpTo(it.id); } } });
+    chime();
+  }
+
+  /* ---------- Telling ---------- */
+  function P(id) { var p = pend.get(id); if (!p) { p = { abs: null, delta: 0, inflight: null, timer: 0, tries: 0 }; pend.set(id, p); } return p; }
+  function tidy(id) { var p = pend.get(id); if (p && p.abs == null && !p.delta && !p.inflight) { clearTimeout(p.timer); pend.delete(id); } }
+  function schedule(id) { var p = P(id); clearTimeout(p.timer); p.timer = setTimeout(function () { flush(id); }, 450); render(); }
+  function bump(id, d) {
+    if (!L.items.has(id)) return;
+    var cur = shown(id) || 0; d = Math.max(-cur, d); if (!d) return;
+    var p = P(id);
+    if (p.abs != null) p.abs = p.abs + d; else p.delta += d;
+    schedule(id);
+  }
+  function setAbs(id, n) { if (!L.items.has(id)) return; var p = P(id); p.abs = n; p.delta = 0; schedule(id); }
+  async function flush(id) {
+    var p = pend.get(id); if (!p || p.inflight) return;
+    if (p.abs == null && !p.delta) { tidy(id); return; }
+    var raw = L.items.get(id);
+    if (!raw) { clearTimeout(p.timer); pend.delete(id); render(); return; }
+    var job = { abs: p.abs, delta: p.delta };
+    p.abs = null; p.delta = 0; p.inflight = job;
+    var before = baseOf(id);
+    var target = job.abs != null ? job.abs : Math.max(0, (before || 0) + job.delta);
+    var alertAt = num(raw.alertAt, num(raw.red, DEF.red));
+    var now = new Date().toISOString();
+    var partial = { updatedAt: now, alertSince: target <= alertAt ? (raw.alertSince || now) : null };
+    var w;
+    if (job.abs != null) { partial.count = job.abs; w = wDoc(itemSets(id, partial)); }
+    else w = wDoc(itemSets(id, partial), null, [{ fieldPath: 'items.' + id + '.count', increment: { integerValue: String(job.delta) } }]);
+    try {
+      await commit([w]);
+      var cur = L.items.get(id);
+      if (cur) {
+        var nc = job.abs != null ? job.abs : (typeof cur.count === 'number' ? cur.count : 0) + job.delta;
+        L.items.set(id, Object.assign({}, cur, partial, { count: nc }));
+      }
+      p.inflight = null; p.tries = 0;
+      if (p.abs != null || p.delta) { clearTimeout(p.timer); p.timer = setTimeout(function () { flush(id); }, 200); }
+      tidy(id); render();
+    } catch (e) {
+      p.inflight = null;
+      var transient = !e.status || e.status >= 500 || e.status === 429;
+      if (transient && p.tries < 2 && L.items.has(id)) {
+        p.tries++;
+        if (p.abs == null) { if (job.abs != null) { p.abs = Math.max(0, job.abs + p.delta); p.delta = 0; } else p.delta += job.delta; }
+        clearTimeout(p.timer); p.timer = setTimeout(function () { flush(id); }, 1200 * p.tries);
+        render(); return;
+      }
+      p.tries = 0; tidy(id); render(); toast(errText(e), 'err');
+    }
+  }
+  function commitInput(inp) {
+    var node = inp.closest('.item'); if (!node) return;
+    var id = node.dataset.id, v = inp.value.trim().replace(/\s+/g, '').replace('−', '-');
+    var cur = shown(id), m;
+    if (v === '') {}
+    else if ((m = /^([+-])(\d{1,7})$/.exec(v))) bump(id, (m[1] === '-' ? -1 : 1) * parseInt(m[2], 10));
+    else if (/^\d{1,7}$/.test(v)) { var n = parseInt(v, 10); if (n !== cur) setAbs(id, n); }
+    else toast('Skriv inn et helt tall, for eksempel 24. Bruk +5 eller -5 for å legge til eller trekke fra.', 'err');
+    var s = shown(id); inp.value = s == null ? '' : String(s);
+  }
+
+  /* ---------- Visning ---------- */
+  var secEls = new Map(), itemEls = new Map();
+  function makeSection(id) {
+    var sec = el('section', 'cat'); sec.dataset.id = id; sec.id = 'lcat-' + id;
+    sec.innerHTML =
+      '<div class="cat-head">' +
+        '<button type="button" class="cat-toggle" aria-expanded="true">' + ICON.chev + '<h2></h2><span class="cat-count"></span></button>' +
+        '<span class="cat-flags"></span>' +
+        '<button type="button" class="btn-line small add-in">' + ICON.plus + '<span>Vare</span></button>' +
+        '<button type="button" class="icon-btn small edit-cat">' + ICON.more + '</button>' +
+      '</div>' +
+      '<div class="cat-items"></div>' +
+      '<p class="cat-empty" hidden>Ingen varer her ennå. Trykk + Vare for å legge til den første.</p>';
+    return sec;
+  }
+  function updateSection(sec, g, filtering) {
+    var open = filtering || !L.collapsed.has(g.id);
+    sec.classList.toggle('collapsed', !open);
+    $('.cat-toggle', sec).setAttribute('aria-expanded', String(open));
+    $('h2', sec).textContent = g.name;
+    var tot = g.all.length;
+    $('.cat-count', sec).textContent = filtering ? (g.items.length + ' av ' + tot) : (tot === 1 ? '1 vare' : tot + ' varer');
+    var nc = 0, nw = 0;
+    g.all.forEach(function (it) { var s = status(it); if (s === 'crit') nc++; else if (s === 'warn') nw++; });
+    var flags = $('.cat-flags', sec); flags.replaceChildren();
+    if (!open) {
+      if (nc) { var a = el('span'); a.title = nc + ' røde'; a.append(el('i', 'dot d-crit'), document.createTextNode(String(nc))); flags.append(a); }
+      if (nw) { var b = el('span'); b.title = nw + ' gule'; b.append(el('i', 'dot d-warn'), document.createTextNode(String(nw))); flags.append(b); }
+    }
+    var ec = $('.edit-cat', sec); ec.hidden = !g.real; ec.setAttribute('aria-label', 'Endre kategorien ' + g.name);
+    $('.add-in', sec).setAttribute('aria-label', 'Ny vare i ' + g.name);
+    $('.cat-items', sec).hidden = !open;
+    $('.cat-empty', sec).hidden = !open || g.items.length > 0;
+  }
+  function makeItem(id) {
+    var node = el('article', 'item'); node.dataset.id = id; node.id = 'litem-' + id;
+    node.innerHTML =
+      '<div class="item-main">' +
+        '<button type="button" class="item-name"><span class="nm"></span>' + ICON.pen + '</button>' +
+        '<div class="meta"><span class="pill"></span><span class="lims"></span><span class="bellmark" hidden>' + ICON.bell + 'varsel</span><span class="when"></span></div>' +
+      '</div>' +
+      '<div class="tally" role="group">' +
+        '<button type="button" class="tb ten" data-d="-10">−10</button>' +
+        '<button type="button" class="tb" data-d="-1">−1</button>' +
+        '<input class="count" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="done">' +
+        '<button type="button" class="tb" data-d="1">+1</button>' +
+        '<button type="button" class="tb ten" data-d="10">+10</button>' +
+      '</div>';
+    $('.count', node).id = 'lcount-' + id;
+    return node;
+  }
+  function updateItem(node, it) {
+    var st = status(it), al = alerting(it);
+    node.className = 'item s-' + st + (al ? ' is-alert' : '') + (node.classList.contains('flash') ? ' flash' : '');
+    $('.nm', node).textContent = it.name;
+    $('.item-name', node).title = 'Endre ' + it.name;
+    $('.pill', node).textContent = ST_LABEL[st];
+    $('.lims', node).textContent = 'gul ≤ ' + it.yellow + ' · rød ≤ ' + it.red + ' · varsel ≤ ' + it.alertAt;
+    $('.bellmark', node).hidden = !al;
+    $('.when', node).textContent = it.updatedAt ? 'endret ' + when(it.updatedAt) : '';
+    var inp = $('.count', node);
+    if (document.activeElement !== inp) inp.value = it.c == null ? '' : String(it.c);
+    inp.placeholder = '–';
+    inp.setAttribute('aria-label', 'Antall ' + it.name);
+    var zero = it.c == null || it.c <= 0;
+    $$('.tb', node).forEach(function (b) {
+      var d = +b.dataset.d;
+      if (d < 0) b.disabled = zero;
+      b.setAttribute('aria-label', (d > 0 ? 'Legg til ' : 'Trekk fra ') + Math.abs(d) + ' på ' + it.name);
+    });
+  }
+  function buildView(all) {
+    var cats = catList();
+    var groupsAll = cats.map(function (c) { return { id: c.id, name: c.name, real: true, all: [] }; });
+    var byId = new Map(groupsAll.map(function (g) { return [g.id, g]; }));
+    var unc = { id: UNC, name: 'Uten kategori', real: false, all: [] };
+    all.forEach(function (it) { var g = (it.categoryId && byId.get(it.categoryId)) || unc; g.all.push(it); });
+    if (unc.all.length) groupsAll.push(unc);
+    groupsAll.forEach(function (g) { g.all.sort(function (a, b) { return coll.compare(a.name, b.name); }); });
+    var q = L.q.trim().toLocaleLowerCase('nb'), low = L.filter === 'low', filtering = !!q || low;
+    var groups = [];
+    groupsAll.forEach(function (g) {
+      var catHit = q && g.name.toLocaleLowerCase('nb').indexOf(q) > -1;
+      g.items = g.all.filter(function (it) {
+        var st = status(it);
+        return (!q || catHit || it.name.toLocaleLowerCase('nb').indexOf(q) > -1) && (!low || alerting(it) || st === 'warn' || st === 'crit');
+      });
+      if (!filtering || g.items.length) groups.push(g);
+    });
+    return { groups: groups, groupsAll: groupsAll, filtering: filtering, q: q, low: low };
+  }
+  function detect(all) {
+    all.forEach(function (it) {
+      var prev = lastShown.get(it.id);
+      if (primed && prev !== undefined && prev !== it.c) {
+        var was = prev != null && prev <= it.alertAt;
+        if (!was && alerting(it)) alertToast(it);
+        if (!pend.has(it.id)) pulse.add(it.id);
+      }
+      lastShown.set(it.id, it.c);
+    });
+    primed = true;
+  }
+  function renderStats(all) {
+    var n = { ok: 0, warn: 0, crit: 0, none: 0 };
+    all.forEach(function (it) { n[status(it)]++; });
+    $('#l-stTotal').textContent = all.length;
+    $('#l-stOk').textContent = n.ok; $('#l-stWarn').textContent = n.warn; $('#l-stCrit').textContent = n.crit; $('#l-stNone').textContent = n.none;
+    $('#l-stNoneWrap').hidden = !n.none;
+  }
+  function renderAlerts(all) {
+    var list = all.filter(alerting).sort(function (a, b) {
+      return (a.c / Math.max(1, a.alertAt)) - (b.c / Math.max(1, b.alertAt)) || coll.compare(a.name, b.name);
+    });
+    $('#l-alerts').hidden = !list.length;
+    $('#l-alertsN').textContent = list.length === 1 ? '1 vare' : list.length + ' varer';
+    var tg = $('#l-alertsToggle');
+    tg.textContent = L.alertsOpen ? 'Skjul' : 'Vis';
+    tg.setAttribute('aria-expanded', String(L.alertsOpen));
+    var ul = $('#l-alertList'); ul.hidden = !L.alertsOpen;
+    ul.replaceChildren.apply(ul, list.map(function (it) {
+      var li = el('li');
+      var b = el('button', 'ar s-' + status(it)); b.type = 'button'; b.dataset.id = it.id;
+      var numEl = el('span', 'ar-num', String(it.c)); numEl.append(el('small', null, 'varsel ≤ ' + it.alertAt));
+      b.append(el('span', 'ar-name', it.name), el('span', 'ar-sub', catName(it.categoryId) + (it.alertSince ? ' · under grensen ' + since(it.alertSince) : '')), numEl);
+      li.append(b); return li;
+    }));
+  }
+  function renderNav(groups) {
+    var nav = $('#l-catNav');
+    nav.hidden = groups.length < 2;
+    if (nav.hidden) { nav.replaceChildren(); return; }
+    nav.replaceChildren.apply(nav, groups.map(function (g) {
+      var worst = g.all.length ? 'ok' : 'none';
+      g.all.forEach(function (it) { var s = status(it); if (s === 'crit' || alerting(it)) worst = 'crit'; else if (s === 'warn' && worst !== 'crit') worst = 'warn'; });
+      var b = el('button', 'cchip'); b.type = 'button'; b.dataset.id = g.id;
+      b.append(el('i', 'dot d-' + worst), document.createTextNode(g.name), el('span', 'cchip-n', String(g.all.length)));
+      return b;
+    }));
+  }
+  function renderList(view) {
+    var list = $('#l-list'), seenS = new Set(), seenI = new Set();
+    view.groups.forEach(function (g, gi) {
+      var sec = secEls.get(g.id);
+      if (!sec) { sec = makeSection(g.id); secEls.set(g.id, sec); }
+      updateSection(sec, g, view.filtering);
+      if (list.children[gi] !== sec) list.insertBefore(sec, list.children[gi] || null);
+      var body = $('.cat-items', sec);
+      g.items.forEach(function (it, ii) {
+        var node = itemEls.get(it.id);
+        if (!node) { node = makeItem(it.id); itemEls.set(it.id, node); }
+        updateItem(node, it);
+        if (body.children[ii] !== node) body.insertBefore(node, body.children[ii] || null);
+        seenI.add(it.id);
+      });
+      while (body.children.length > g.items.length) body.lastElementChild.remove();
+      seenS.add(g.id);
+    });
+    while (list.children.length > view.groups.length) list.lastElementChild.remove();
+    secEls.forEach(function (_, id) { if (!seenS.has(id)) secEls.delete(id); });
+    itemEls.forEach(function (node, id) { if (!seenI.has(id)) { node.remove(); itemEls.delete(id); } });
+    pulse.forEach(function (id) {
+      var node = itemEls.get(id); if (!node) return;
+      var inp = $('.count', node); inp.classList.remove('pulse'); void inp.offsetWidth; inp.classList.add('pulse');
+    });
+    pulse.clear();
+  }
+  function renderEmpty(all, view) {
+    var none = L.cats.size === 0 && all.length === 0;
+    $('#l-emptyAll').hidden = !none;
+    $('#l-toolsWrap').hidden = none;
+    $('#l-foot').hidden = none;
+    var nothing = !none && view.filtering && view.groups.length === 0;
+    $('#l-emptyFilter').hidden = !nothing;
+    if (nothing) {
+      var q = L.q.trim();
+      $('#l-emptyFilterText').textContent = view.q
+        ? (view.low ? 'Ingen varer som trenger påfyll passer «' + q + '».' : 'Ingen varer passer «' + q + '».')
+        : 'Ingen varer trenger påfyll akkurat nå.';
+    }
+  }
+  function render() {
+    var ready = L.loaded && !L.err;
+    $('#l-loading').hidden = L.loaded;
+    $('#l-error').hidden = !L.err;
+    if (L.err === 'rules') {
+      $('#l-errorTitle').textContent = 'Lageret mangler tilgang i Firebase';
+      $('#l-errorText').innerHTML = 'Sikkerhetsreglene i Firebase må gi tilgang til dokumentet <code>graabein-oppgaver/lager</code>. Når reglene er oppdatert, trykker du Prøv igjen.';
+    } else if (L.err === 'net') {
+      $('#l-errorTitle').textContent = 'Fikk ikke kontakt med lageret';
+      $('#l-errorText').textContent = 'Sjekk nettforbindelsen og prøv igjen.';
+    }
+    $('#l-ready').hidden = !ready;
+    var bn = $('#l-banner'); bn.hidden = !(ready && L.banner);
+    if (L.banner) $('#l-bannerText').textContent = L.banner;
+    var sb = $('#l-sound');
+    sb.setAttribute('aria-pressed', String(L.sound));
+    sb.innerHTML = L.sound ? ICON.soundOn : ICON.soundOff;
+    sb.title = L.sound ? 'Lyd ved lagervarsel er på' : 'Lyd ved lagervarsel er av';
+    sb.setAttribute('aria-label', sb.title);
+    if (ready) {
+      var all = [];
+      L.items.forEach(function (_, id) { all.push(itemOf(id)); });
+      detect(all);
+      renderStats(all);
+      renderAlerts(all);
+      var view = buildView(all);
+      renderNav(view.groupsAll);
+      renderList(view);
+      renderEmpty(all, view);
+      $$('#view-lager .seg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.f === L.filter)); });
+      if (L.flashOnArrive && L.items.has(L.flashOnArrive)) { var fid = L.flashOnArrive; L.flashOnArrive = null; jumpTo(fid); }
+    }
+    if (typeof updateTabs === 'function') updateTabs();
+  }
+  function alertCount() {
+    if (!L.loaded || L.err) return 0;
+    var n = 0; L.items.forEach(function (_, id) { if (alerting(itemOf(id))) n++; }); return n;
+  }
+  function jumpTo(id) {
+    if (typeof showView === 'function') showView('lager');
+    var it = itemOf(id); if (!it) return;
+    var cid = catKey(it.categoryId), changed = false;
+    if (L.collapsed.has(cid)) { L.collapsed.delete(cid); lsSet('collapsed', Array.from(L.collapsed)); changed = true; }
+    var node = itemEls.get(id);
+    if (!node || !node.isConnected) { L.q = ''; $('#l-q').value = ''; L.filter = 'all'; lsSet('filter', 'all'); changed = true; }
+    if (changed) render();
+    node = itemEls.get(id); if (!node) return;
+    setTimeout(function () {
+      node.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
+      node.classList.remove('flash'); void node.offsetWidth; node.classList.add('flash');
+      setTimeout(function () { node.classList.remove('flash'); }, 1700);
+    }, 30);
+  }
+  function jumpToCat(id) {
+    var sec = secEls.get(id);
+    if (!sec || !sec.isConnected) { L.q = ''; $('#l-q').value = ''; L.filter = 'all'; lsSet('filter', 'all'); render(); sec = secEls.get(id); }
+    if (sec) sec.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
+  }
+
+  /* ---------- Vare-dialog ---------- */
+  var dlg = $('#l-itemDlg');
+  var f = { name: $('#l-fName'), cat: $('#l-fCat'), newCat: $('#l-fNewCat'), newCatWrap: $('#l-fNewCatWrap'), count: $('#l-fCount'), yellow: $('#l-fYellow'), red: $('#l-fRed'), alert: $('#l-fAlert') };
+  var editId = null, openCount = '', linked = true, limitsTouched = false;
+  function lastLimits(cid) {
+    var best = null;
+    L.items.forEach(function (raw) {
+      if (catKey(raw.categoryId) !== cid) return;
+      var t = String(raw.createdAt || raw.updatedAt || '');
+      if (!best || t > best.t) best = { t: t, raw: raw };
+    });
+    if (!best) return { yellow: DEF.yellow, red: DEF.red, alertAt: DEF.alertAt };
+    var red = num(best.raw.red, DEF.red);
+    return { yellow: num(best.raw.yellow, DEF.yellow), red: red, alertAt: num(best.raw.alertAt, red) };
+  }
+  function fillCatSelect(sel) {
+    f.cat.replaceChildren();
+    catList().forEach(function (c) { f.cat.append(new Option(c.name, c.id)); });
+    f.cat.append(new Option('Uten kategori', UNC));
+    f.cat.append(new Option('+ Ny kategori …', NEWCAT));
+    f.cat.value = sel; if (f.cat.value !== sel) f.cat.value = UNC;
+  }
+  function toggleNewCat() { var on = f.cat.value === NEWCAT; f.newCatWrap.hidden = !on; if (on) setTimeout(function () { f.newCat.focus(); }, 0); }
+  function setLimits(l) { f.yellow.value = l.yellow; f.red.value = l.red; f.alert.value = l.alertAt; linked = l.alertAt === l.red; updateScale(); }
+  function updateScale() {
+    var y = toInt(f.yellow.value), r = toInt(f.red.value), a = toInt(f.alert.value);
+    var sc = $('#l-scale'), tx = $('#l-scaleText');
+    if (isNaN(y) || isNaN(r) || r > y) {
+      sc.style.visibility = 'hidden';
+      tx.textContent = (isNaN(y) || isNaN(r)) ? 'Fyll inn hele tall for gul og rød.' : 'Rød må være lik eller lavere enn gul.';
+      return;
+    }
+    sc.style.visibility = '';
+    var zr = $('#l-zR'), zy = $('#l-zY'), zg = $('#l-zG');
+    zr.style.flex = (r + 1) + ' 1 0'; zr.lastChild.textContent = r === 0 ? '0' : '0–' + r;
+    zy.hidden = y === r; zy.style.flex = Math.max(1, y - r) + ' 1 0'; zy.lastChild.textContent = (r + 1 === y) ? String(y) : (r + 1) + '–' + y;
+    zg.style.flex = Math.max(3, Math.round((y + 1) * 0.6)) + ' 1 0'; zg.lastChild.textContent = (y + 1) + '+';
+    tx.replaceChildren();
+    if (isNaN(a)) { tx.textContent = 'Fyll inn et helt tall for varsel.'; return; }
+    tx.append(document.createTextNode('Varsel når det er '));
+    tx.append(el('b', null, a === 0 ? 'tomt' : a + ' eller færre'));
+    tx.append(document.createTextNode(' igjen.'));
+  }
+  function showItemErr(msg) { var p = $('#l-itemErr'); p.textContent = msg; p.hidden = false; }
+  function openItemDlg(id, cid) {
+    editId = id || null;
+    var it = id ? itemOf(id) : null;
+    $('#l-itemDlgH').textContent = it ? 'Endre vare' : 'Ny vare';
+    $('#l-saveItem').textContent = it ? 'Lagre' : 'Legg til';
+    $('#l-delItem').hidden = !it; $('#l-delConfirm').hidden = true; $('#l-itemErr').hidden = true;
+    var cats = catList(), last = lsGet('lastCat', null);
+    var sel = it ? catKey(it.categoryId) : (cid || (last && L.cats.has(last) ? last : (cats.length ? cats[0].id : UNC)));
+    fillCatSelect(sel); f.newCat.value = ''; toggleNewCat();
+    f.name.value = it ? it.name : '';
+    setLimits(it ? it : lastLimits(f.cat.value));
+    limitsTouched = false;
+    f.count.value = it && it.c != null ? String(it.c) : ''; openCount = f.count.value;
+    $('#l-saveItem').disabled = false;
+    dlg.showModal();
+    if (!it) setTimeout(function () { f.name.focus(); }, 30);
+  }
+  f.cat.addEventListener('change', function () {
+    toggleNewCat();
+    if (!editId && !limitsTouched && f.cat.value !== NEWCAT) setLimits(lastLimits(f.cat.value));
+  });
+  f.yellow.addEventListener('input', function () { limitsTouched = true; updateScale(); });
+  f.red.addEventListener('input', function () { limitsTouched = true; if (linked) f.alert.value = f.red.value; updateScale(); });
+  f.alert.addEventListener('input', function () { limitsTouched = true; linked = f.alert.value.trim() === f.red.value.trim(); updateScale(); });
+
+  function nextOrder() { return catList().reduce(function (m, c) { return Math.max(m, c.order); }, 0) + 1; }
+
+  $('#l-itemForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    $('#l-itemErr').hidden = true;
+    var name = f.name.value.trim();
+    if (!name) { showItemErr('Gi varen et navn.'); f.name.focus(); return; }
+    var y = toInt(f.yellow.value), r = toInt(f.red.value), a = toInt(f.alert.value);
+    if (isNaN(y) || isNaN(r) || isNaN(a)) { showItemErr('Grensene må være hele tall, 0 eller høyere.'); return; }
+    if (r > y) { showItemErr('Rød-grensen kan ikke være høyere enn gul-grensen.'); f.red.focus(); return; }
+    var cv = f.count.value.trim(), count = null;
+    if (cv !== '') { count = toInt(cv); if (isNaN(count)) { showItemErr('Antall må være et helt tall, eller tomt hvis varen ikke er telt ennå.'); f.count.focus(); return; } }
+    var cid = f.cat.value, newCatName = f.newCat.value.trim();
+    if (cid === NEWCAT && !newCatName) { showItemErr('Skriv navnet på den nye kategorien.'); f.newCat.focus(); return; }
+    var btn = $('#l-saveItem'); btn.disabled = true;
+    try {
+      var sets = [], now = new Date().toISOString(), newCat = null;
+      if (cid === NEWCAT) {
+        cid = newId('c'); newCat = { name: newCatName, order: nextOrder(), createdAt: now };
+        sets.push([['categories', cid], newCat]);
+      }
+      var partial = { name: name, categoryId: cid === UNC ? null : cid, yellow: y, red: r, alertAt: a, updatedAt: now };
+      var id = editId;
+      if (id) {
+        var raw = L.items.get(id);
+        if (!raw) { showItemErr('Varen er slettet av noen andre.'); return; }
+        var changed = cv !== openCount;
+        var eff = changed ? count : shown(id);
+        if (changed) { partial.count = count; var p = pend.get(id); if (p && !p.inflight) { clearTimeout(p.timer); pend.delete(id); } }
+        partial.alertSince = (eff != null && eff <= a) ? (raw.alertSince || now) : null;
+        sets = sets.concat(itemSets(id, partial));
+        await commit([wDoc(sets)]);
+        if (newCat) L.cats.set(cid, newCat);
+        var cur = L.items.get(id); if (cur) L.items.set(id, Object.assign({}, cur, partial));
+        dlg.close(); toast(name + ' er lagret.', 'info'); render();
+      } else {
+        id = newId('i');
+        partial.count = count; partial.createdAt = now;
+        partial.alertSince = (count != null && count <= a) ? now : null;
+        sets.push([['items', id], partial]);
+        await commit([wDoc(sets)]);
+        if (newCat) L.cats.set(cid, newCat);
+        L.items.set(id, partial);
+        lsSet('lastCat', cid);
+        L.flashOnArrive = id;
+        dlg.close(); toast(name + ' er lagt til.', 'info'); render();
+      }
+    } catch (ex) { showItemErr(errText(ex)); }
+    finally { btn.disabled = false; }
+  });
+  $('#l-delItem').addEventListener('click', function () {
+    var it = itemOf(editId); if (!it) return;
+    $('#l-delText').textContent = 'Slette ' + it.name + ' for godt? Antall og grenser forsvinner.';
+    $('#l-delConfirm').hidden = false;
+  });
+  $('#l-delNo').addEventListener('click', function () { $('#l-delConfirm').hidden = true; });
+  $('#l-delYes').addEventListener('click', async function () {
+    var id = editId, it = itemOf(id), btn = this; if (!it) { dlg.close(); return; }
+    btn.disabled = true;
+    try {
+      var p = pend.get(id); if (p) clearTimeout(p.timer);
+      await commit([wDoc(null, [['items', id]])]);
+      pend.delete(id); L.items.delete(id);
+      dlg.close(); toast(it.name + ' er slettet.', 'info'); render();
+    } catch (e) { showItemErr(errText(e)); }
+    finally { btn.disabled = false; }
+  });
+
+  /* ---------- Kategori-dialog ---------- */
+  var catDlg = $('#l-catDlg'), editCat = null;
+  function showCatErr(msg) { var p = $('#l-catErr'); p.textContent = msg; p.hidden = false; }
+  function syncOrderBtns() {
+    var list = catList(), i = list.findIndex(function (x) { return x.id === editCat; });
+    $('#l-catUp').disabled = i <= 0; $('#l-catDown').disabled = i < 0 || i >= list.length - 1;
+  }
+  function openCatDlg(id) {
+    editCat = id || null;
+    var c = id ? L.cats.get(id) : null;
+    $('#l-catDlgH').textContent = c ? 'Endre kategori' : 'Ny kategori';
+    $('#l-cName').value = c ? String(c.name || '') : '';
+    $('#l-catOrder').hidden = !c; $('#l-delCat').hidden = !c;
+    $('#l-catDelConfirm').hidden = true; $('#l-catErr').hidden = true;
+    $('#l-catSave').textContent = c ? 'Lagre' : 'Legg til';
+    if (c) syncOrderBtns();
+    catDlg.showModal();
+    if (!c) setTimeout(function () { $('#l-cName').focus(); }, 30);
+  }
+  $('#l-catForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    $('#l-catErr').hidden = true;
+    var name = $('#l-cName').value.trim();
+    if (!name) { showCatErr('Gi kategorien et navn.'); $('#l-cName').focus(); return; }
+    var btn = $('#l-catSave'); btn.disabled = true;
+    try {
+      if (editCat) {
+        await commit([wDoc([[['categories', editCat, 'name'], name]])]);
+        var c = L.cats.get(editCat); if (c) L.cats.set(editCat, Object.assign({}, c, { name: name }));
+        catDlg.close(); render();
+      } else {
+        var id = newId('c'), cat = { name: name, order: nextOrder(), createdAt: new Date().toISOString() };
+        await commit([wDoc([[['categories', id], cat]])]);
+        L.cats.set(id, cat); L.collapsed.delete(id); lsSet('lastCat', id);
+        catDlg.close(); render();
+        toast(name + ' er lagt til. Trykk + Vare for å fylle den.', 'info');
+        setTimeout(function () { jumpToCat(id); }, 60);
+      }
+    } catch (ex) { showCatErr(errText(ex)); }
+    finally { btn.disabled = false; }
+  });
+  async function moveCat(dir) {
+    var list = catList(), i = list.findIndex(function (x) { return x.id === editCat; }), j = i + dir;
+    if (i < 0 || j < 0 || j >= list.length) return;
+    var tmp = list[i]; list[i] = list[j]; list[j] = tmp;
+    var sets = [];
+    list.forEach(function (c, k) { if (c.order !== k + 1) sets.push([['categories', c.id, 'order'], k + 1]); });
+    $('#l-catUp').disabled = $('#l-catDown').disabled = true;
+    try {
+      if (sets.length) await commit([wDoc(sets)]);
+      sets.forEach(function (s) { var id = s[0][1], c = L.cats.get(id); if (c) L.cats.set(id, Object.assign({}, c, { order: s[1] })); });
+      render();
+    } catch (ex) { showCatErr(errText(ex)); }
+    syncOrderBtns();
+  }
+  $('#l-catUp').addEventListener('click', function () { moveCat(-1); });
+  $('#l-catDown').addEventListener('click', function () { moveCat(1); });
+  function itemsInCat(id) { var a = []; L.items.forEach(function (raw, iid) { if (raw.categoryId === id) a.push(iid); }); return a; }
+  $('#l-delCat').addEventListener('click', function () {
+    var c = L.cats.get(editCat); if (!c) return;
+    var n = itemsInCat(editCat).length;
+    $('#l-catDelText').textContent = n
+      ? 'Slette ' + c.name + '? Kategorien har ' + (n === 1 ? '1 vare' : n + ' varer') + '.'
+      : 'Slette ' + c.name + '? Kategorien er tom.';
+    $('#l-catDelMove').textContent = n ? 'Slett og flytt varene til Uten kategori' : 'Slett kategorien';
+    $('#l-catDelAll').hidden = !n;
+    $('#l-catDelConfirm').hidden = false;
+  });
+  $('#l-catDelNo').addEventListener('click', function () { $('#l-catDelConfirm').hidden = true; });
+  async function deleteCat(withItems) {
+    var id = editCat, c = L.cats.get(id); if (!c) { catDlg.close(); return; }
+    var ids = itemsInCat(id);
+    $$('#l-catDelConfirm button').forEach(function (b) { b.disabled = true; });
+    try {
+      var w = withItems
+        ? wDoc(null, [['categories', id]].concat(ids.map(function (iid) { return ['items', iid]; })))
+        : wDoc(ids.map(function (iid) { return [['items', iid, 'categoryId'], null]; }), [['categories', id]]);
+      await commit([w]);
+      L.cats.delete(id);
+      ids.forEach(function (iid) {
+        if (withItems) { var p = pend.get(iid); if (p) clearTimeout(p.timer); pend.delete(iid); L.items.delete(iid); }
+        else { var cur = L.items.get(iid); if (cur) L.items.set(iid, Object.assign({}, cur, { categoryId: null })); }
+      });
+      catDlg.close(); toast(c.name + ' er slettet.', 'info'); render();
+    } catch (ex) { showCatErr(errText(ex)); }
+    finally { $$('#l-catDelConfirm button').forEach(function (b) { b.disabled = false; }); }
+  }
+  $('#l-catDelMove').addEventListener('click', function () { deleteCat(false); });
+  $('#l-catDelAll').addEventListener('click', function () { deleteCat(true); });
+
+  /* ---------- Startsortiment ---------- */
+  var STARTER = [
+    ['Skjeggpleie', ['Skjeggolje', 'Skjeggsjampo', 'Skjeggbalsam', 'Skjeggskrubb', 'Skjeggmykner', 'Skjeggbalm']],
+    ['Styling', ['Volumpulver', 'Bartevoks']],
+    ['Verktøy', ['Skjeggbørste', 'Skjeggsaks', 'Skjeggkam']],
+    ['Klær', []]
+  ];
+  $('#l-seed').addEventListener('click', async function () {
+    var btn = this; btn.disabled = true;
+    var now = new Date().toISOString(), sets = [], cats = [], items = [];
+    STARTER.forEach(function (g, i) {
+      var cid = newId('c') + i, cat = { name: g[0], order: i + 1, createdAt: now };
+      sets.push([['categories', cid], cat]); cats.push([cid, cat]);
+      g[1].forEach(function (n, k) {
+        var iid = newId('i') + i + 'x' + k;
+        var it = { name: n, categoryId: cid, count: null, yellow: DEF.yellow, red: DEF.red, alertAt: DEF.alertAt, alertSince: null, createdAt: now, updatedAt: now };
+        sets.push([['items', iid], it]); items.push([iid, it]);
+      });
+    });
+    try {
+      await commit([wDoc(sets)]);
+      cats.forEach(function (c) { L.cats.set(c[0], c[1]); });
+      items.forEach(function (x) { L.items.set(x[0], x[1]); });
+      render();
+      toast('Sortimentet er lagt inn. Tell opp og fyll inn antall.', 'info');
+    } catch (e) { toast(errText(e), 'err'); }
+    finally { btn.disabled = false; }
+  });
+
+  /* ---------- Hendelser ---------- */
+  $$('.l-dlg [data-close]').forEach(function (b) { b.addEventListener('click', function () { b.closest('dialog').close(); }); });
+  [dlg, catDlg].forEach(function (d) { d.addEventListener('click', function (e) { if (e.target === d) d.close(); }); });
+
+  var list = $('#l-list');
+  list.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    var itemEl = b.closest('.item'), sec = b.closest('.cat');
+    if (b.dataset.d && itemEl) { bump(itemEl.dataset.id, +b.dataset.d); return; }
+    if (b.classList.contains('item-name') && itemEl) { openItemDlg(itemEl.dataset.id); return; }
+    if (!sec) return;
+    var sid = sec.dataset.id;
+    if (b.classList.contains('cat-toggle')) {
+      if (L.collapsed.has(sid)) L.collapsed.delete(sid); else L.collapsed.add(sid);
+      lsSet('collapsed', Array.from(L.collapsed)); render();
+    } else if (b.classList.contains('add-in')) openItemDlg(null, sid);
+    else if (b.classList.contains('edit-cat')) openCatDlg(sid);
+  });
+  list.addEventListener('change', function (e) { if (e.target.classList.contains('count')) commitInput(e.target); });
+  list.addEventListener('keydown', function (e) {
+    var t = e.target; if (!t.classList || !t.classList.contains('count')) return;
+    if (e.key === 'Enter') { e.preventDefault(); t.blur(); }
+    else if (e.key === 'Escape') { var s = shown(t.closest('.item').dataset.id); t.value = s == null ? '' : String(s); t.blur(); }
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault(); var id = t.closest('.item').dataset.id;
+      bump(id, (e.key === 'ArrowUp' ? 1 : -1) * (e.shiftKey ? 10 : 1));
+      var v = shown(id); t.value = v == null ? '' : String(v);
+    }
+  });
+  list.addEventListener('focusin', function (e) { var t = e.target; if (t.classList && t.classList.contains('count')) setTimeout(function () { try { t.select(); } catch (x) {} }, 0); });
+
+  $('#l-alertList').addEventListener('click', function (e) { var b = e.target.closest('.ar'); if (b) jumpTo(b.dataset.id); });
+  $('#l-alertsToggle').addEventListener('click', function () { L.alertsOpen = !L.alertsOpen; lsSet('alertsOpen', L.alertsOpen); render(); });
+  $('#l-catNav').addEventListener('click', function (e) { var b = e.target.closest('.cchip'); if (b) jumpToCat(b.dataset.id); });
+  $('#l-q').addEventListener('input', function () { L.q = this.value; render(); });
+  $$('#view-lager .seg button').forEach(function (b) { b.addEventListener('click', function () { L.filter = b.dataset.f; lsSet('filter', L.filter); render(); }); });
+  $('#l-clearFilter').addEventListener('click', function () { L.q = ''; $('#l-q').value = ''; L.filter = 'all'; lsSet('filter', 'all'); render(); });
+  $('#l-addItem').addEventListener('click', function () { openItemDlg(null); });
+  $('#l-addCat').addEventListener('click', function () { openCatDlg(null); });
+  $('#l-emptyCat').addEventListener('click', function () { openCatDlg(null); });
+  $('#l-sound').addEventListener('click', function () { L.sound = !L.sound; lsSet('sound', L.sound); render(); if (L.sound) { unlockAudio(); chime(); } });
+  $('#l-retry').addEventListener('click', function () { L.err = null; L.loaded = false; render(); poll(); });
+
+  render();
+  return { poll: poll, render: render, alertCount: alertCount };
+})();
+</script>
+
+<script>
+// =====================================================================
+// FANER OG OPPDATERING
+// =====================================================================
+const VIEWS = {
+  oppgaver: { title: "Oppgaver", doc: "Oppgaver – Graabein Skjegg" },
+  lager: { title: "Lager", doc: "Lager – Graabein Skjegg" },
+};
+let currentView = null;
+
+function updateTabs() {
+  const bt = document.getElementById("badgeTasks");
+  const open = state.loaded ? state.tasks.filter((t) => !t.done).length : 0;
+  bt.hidden = !open;
+  bt.textContent = open;
+  bt.title = open + " åpne oppgaver";
+  const bl = document.getElementById("badgeLager");
+  const al = window.Lager ? window.Lager.alertCount() : 0;
+  bl.hidden = !al;
+  bl.textContent = al;
+  bl.title = al + (al === 1 ? " vare" : " varer") + " under varslingsgrensen";
+}
+
+function showView(v) {
+  if (!VIEWS[v]) v = "oppgaver";
+  if (location.hash !== "#" + v) history.replaceState(null, "", "#" + v);
+  if (v === currentView) return;
+  const first = currentView === null;
+  currentView = v;
+  document.body.dataset.view = v;
+  document.getElementById("viewTitle").innerHTML =
+    document.querySelector('.view-tab[data-view="' + v + '"] svg').outerHTML + VIEWS[v].title;
+  document.title = VIEWS[v].doc;
+  document.querySelectorAll(".view-tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.view === v)));
+  document.getElementById("view-oppgaver").hidden = v !== "oppgaver";
+  document.getElementById("view-lager").hidden = v !== "lager";
+  try { localStorage.setItem("graabein:view", v); } catch (e) {}
+  if (!first) {
+    window.scrollTo(0, 0);
+    refreshNow();
+  }
+}
+
+function initialView() {
+  const h = location.hash.replace("#", "");
+  if (VIEWS[h]) return h;
+  try { const s = localStorage.getItem("graabein:view"); if (VIEWS[s]) return s; } catch (e) {}
+  return "oppgaver";
+}
+
+document.querySelectorAll(".view-tab").forEach((t) => {
+  t.addEventListener("click", (e) => { e.preventDefault(); showView(t.dataset.view); });
+});
+window.addEventListener("hashchange", () => showView(initialView()));
+
+// Henter fra Firebase: den fanen du ser på hvert 4. sekund, den andre hvert 30. sekund
+// (så lagervarsler dukker opp også når du er på oppgaver), og ingenting når appen ligger i bakgrunnen.
+const FAST_MS = 4000, SLOW_MS = 30000;
+let lastTasks = 0, lastLager = 0;
+function refreshNow() { lastTasks = 0; lastLager = 0; tick(); }
+function tick() {
+  if (document.hidden) return;
+  const now = Date.now();
+  const tasksEvery = currentView === "oppgaver" ? FAST_MS : SLOW_MS;
+  const lagerEvery = currentView === "lager" ? FAST_MS : SLOW_MS;
+  if (now - lastTasks >= tasksEvery) { lastTasks = now; load(); }
+  if (now - lastLager >= lagerEvery) { lastLager = now; window.Lager.poll(); }
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshNow(); });
+
+showView(initialView());
+updateTabs();
+refreshNow();
+setInterval(tick, 1000);
 </script>
 </body>
 </html>
