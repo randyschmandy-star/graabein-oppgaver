@@ -655,8 +655,9 @@ button, input, select, textarea { font-family: inherit; }
 @media (hover: none) { .pen { opacity: 0.55; } }
 .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 3px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); }
 .pill { font-weight: 600; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--st-tint); color: var(--st-ink); }
-.bellmark { display: inline-flex; align-items: center; gap: 3px; color: var(--crit-ink); font-weight: 600; }
-.bellmark svg { width: 12px; height: 12px; }
+.pill-alert { display: inline-flex; align-items: center; gap: 4px; background: var(--crit-tint); color: var(--crit-ink); }
+.pill svg { width: 11px; height: 11px; }
+.dlg-meta { margin: -8px 0 0; font-size: 12.5px; color: var(--text-muted); }
 
 .tally { display: flex; align-items: center; gap: 6px; }
 .tb {
@@ -941,6 +942,7 @@ fieldset.limits legend { padding: 0 6px; color: var(--text); font-weight: 600; f
 <dialog id="l-itemDlg" class="l-dlg" aria-labelledby="l-itemDlgH">
   <form id="l-itemForm" class="l-form" novalidate>
     <h3 id="l-itemDlgH">Ny vare</h3>
+    <p class="dlg-meta" id="l-itemMeta" hidden></p>
     <label class="field" for="l-fName">Navn<input id="l-fName" autocomplete="off" maxlength="120"></label>
     <div class="row2">
       <label class="field" for="l-fCat">Kategori<select id="l-fCat"></select></label>
@@ -1754,7 +1756,7 @@ window.Lager = (function () {
     node.innerHTML =
       '<div class="item-main">' +
         '<button type="button" class="item-name"><span class="nm"></span>' + ICON.pen + '</button>' +
-        '<div class="meta"><span class="pill"></span><span class="lims"></span><span class="bellmark" hidden>' + ICON.bell + 'varsel</span><span class="when"></span></div>' +
+        '<div class="meta" hidden><span class="pill"></span></div>' +
       '</div>' +
       '<div class="tally" role="group">' +
         '<button type="button" class="tb ten" data-d="-10">−10</button>' +
@@ -1771,14 +1773,16 @@ window.Lager = (function () {
     node.className = 'item s-' + st + (al ? ' is-alert' : '') + (node.classList.contains('flash') ? ' flash' : '');
     $('.nm', node).textContent = it.name;
     $('.item-name', node).title = 'Endre ' + it.name;
-    $('.pill', node).textContent = ST_LABEL[st];
-    $('.lims', node).textContent = 'gul ≤ ' + it.yellow + ' · rød ≤ ' + it.red + ' · varsel ≤ ' + it.alertAt;
-    $('.bellmark', node).hidden = !al;
-    $('.when', node).textContent = it.updatedAt ? 'endret ' + when(it.updatedAt) : '';
+    // Bare det som krever oppmerksomhet vises under navnet. Grenser og «sist endret» ligger i redigeringsvinduet.
+    var pill = $('.pill', node);
+    $('.meta', node).hidden = !(al || st === 'none');
+    pill.className = 'pill' + (al ? ' pill-alert' : '');
+    if (al) pill.innerHTML = ICON.bell + 'Varsel';
+    else pill.textContent = st === 'none' ? 'Ikke telt' : '';
     var inp = $('.count', node);
     if (document.activeElement !== inp) inp.value = it.c == null ? '' : String(it.c);
     inp.placeholder = '–';
-    inp.setAttribute('aria-label', 'Antall ' + it.name);
+    inp.setAttribute('aria-label', 'Antall ' + it.name + ', ' + ST_LABEL[st].toLowerCase() + (al ? ', under varselgrensen' : ''));
     var zero = it.c == null || it.c <= 0;
     $$('.tb', node).forEach(function (b) {
       var d = +b.dataset.d;
@@ -2005,6 +2009,11 @@ window.Lager = (function () {
     $('#l-itemDlgH').textContent = it ? 'Endre vare' : 'Ny vare';
     $('#l-saveItem').textContent = it ? 'Lagre' : 'Legg til';
     $('#l-delItem').hidden = !it; $('#l-delConfirm').hidden = true; $('#l-itemErr').hidden = true;
+    var metaEl = $('#l-itemMeta'), metaParts = [];
+    if (it && it.updatedAt) metaParts.push('Sist endret ' + when(it.updatedAt));
+    if (it && alerting(it) && it.alertSince) metaParts.push('under varselgrensen ' + since(it.alertSince));
+    metaEl.textContent = metaParts.join(' · ');
+    metaEl.hidden = !metaParts.length;
     var cats = catList(), last = lsGet('lastCat', null);
     var sel = it ? catKey(it.categoryId) : (cid || (last && L.cats.has(last) ? last : (cats.length ? cats[0].id : UNC)));
     fillCatSelect(sel); f.newCat.value = ''; toggleNewCat();
